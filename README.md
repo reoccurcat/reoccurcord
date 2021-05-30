@@ -1,6 +1,6 @@
 # FreeDiscord
 ## Welcome to the official GitHub page of the FreeDiscord bot!
-FreeDiscord is a Discord bot made by the reoccurdevs team ([ItsJustLag](https://github.com/ItsJustLag), [reoccurcat](https://github.com/reoccurcat), and [Odysseus](https://github.com/Odysseus443)) that you can edit and self host. If you fork this project, please don't make a new project acting like this project is dead. **It isn't.** If you want to fork it and make a new bot, that's fine, but please give us credit. :)
+FreeDiscord is a Discord bot made by the reoccurdevs team ([reoccurcat](https://github.com/reoccurcat)) that you can edit and self host. If you fork this project, please don't make a new project acting like this project is dead. **It isn't.** If you want to fork it and make a new bot, that's fine, but please give us credit. :)
 If you find an issue, or have a feature suggestion, please let us know by opening an issue [here](https://github.com/reoccurdevs/freediscord/issues).
 
 ## Documentation
