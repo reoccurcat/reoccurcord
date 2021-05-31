@@ -23,12 +23,12 @@ def vt_json_parsing(detections):
             break
     return detections
 
-class VT(commands.Cog):
+class virustotal(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    async def vt_hash(self, ctx, hash: str):
+    async def checkhash(self, ctx, hash: str):
         """VirusTotal Integration"""
         await ctx.message.delete()
         header = {'x-apikey': '{}'.format(apikey)}
@@ -53,7 +53,7 @@ class VT(commands.Cog):
 
 
     @commands.command()
-    async def scan_url(self, ctx, url: str):
+    async def scanurl(self, ctx, url: str):
         #Need to import base64 module to work
         await ctx.message.delete()
         header = {'x-apikey': '{}'.format(apikey)}
@@ -104,4 +104,4 @@ class VT(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(VT(bot))
+    bot.add_cog(virustotal(bot))

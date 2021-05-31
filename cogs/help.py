@@ -24,7 +24,7 @@ class Help(commands.Cog):
             em.add_field(name = "Utils", value = "avatar, joined, ping, quickpoll, uptime, userinfo")
             em.add_field(name = "Fun", value = "add, choose, f, emote")
             em.add_field(name = "Caesarcrypt", value = "twisted_msg, untwisted_msg")
-            em.add_field(name = "VirusTotal", value = "scan_url, vt_hash")
+            em.add_field(name = "VirusTotal", value = "scanurl, checkhash")
             em.add_field(name = "Update", value = "updatecheck, updatebot, updatecogs")
             em.add_field(name = "Admin", value = "getchannels, getinvite, loadcog, lockdownbot, reloadcog, restartbot, servers, shutdownbot, unloadcog")
             em.add_field(name = "Help", value = "help - Shows this message")
