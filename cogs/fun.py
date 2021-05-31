@@ -18,7 +18,7 @@ class Fun(commands.Cog):
     @commands.command()
     async def add(self, ctx, left: int, right: int):
         """Adds two numbers together."""
-        em = discord.Embed(title = left + right, color = discord.Color.orange())
+        em = discord.Embed(title = left + right, color = discord.Color.blue())
         await ctx.send(embed = em)
 
     
@@ -33,7 +33,7 @@ class Fun(commands.Cog):
                 em = discord.Embed(title = "Nice try, sadly that won't work here.", color = discord.Color.red())
                 await ctx.send(embed = em)
             else:
-                em = discord.Embed(title = random.choice(choices), color = discord.Color.orange())
+                em = discord.Embed(title = random.choice(choices), color = discord.Color.blue())
                 await ctx.send(embed = em)
     
     @commands.command(description='#emotes')
@@ -45,7 +45,7 @@ class Fun(commands.Cog):
             return
         else:
             try:
-                em = discord.Embed(timestamp=emote.created_at, color = discord.Color.orange())
+                em = discord.Embed(timestamp=emote.created_at, color = discord.Color.blue())
                 em.set_author(name=emote.name, icon_url=emote.url)
                 em.set_thumbnail(url=emote.url)
                 em.set_footer(text="Created on")
@@ -70,7 +70,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def f(self, ctx, *, message2):
-        em = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.orange())
+        em = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
         msg = await ctx.send(embed = em)
         await msg.add_reaction('🇫')
 

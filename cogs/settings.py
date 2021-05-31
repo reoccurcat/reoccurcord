@@ -38,7 +38,7 @@ class Settings(commands.Cog):
     @commands.command()
     async def botstatusrepeat(self, ctx):
         if str(ctx.message.author.id) == config.ownerID:
-            em = discord.Embed(title = "Status loop initiated.", color = discord.Color.orange())
+            em = discord.Embed(title = "Status loop initiated.", color = discord.Color.blue())
             await ctx.send(embed = em)
 
             while True:

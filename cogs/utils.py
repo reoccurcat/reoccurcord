@@ -18,7 +18,7 @@ class Utils(commands.Cog):
         '''
         Get the latency of the bot.
         '''
-        em = discord.Embed(title = "Pong! `"f"{round(self.bot.latency*1000)} ms`.", color = discord.Color.orange())
+        em = discord.Embed(title = "Pong! `"f"{round(self.bot.latency*1000)} ms`.", color = discord.Color.blue())
         await ctx.send(embed = em)
 
 
@@ -42,7 +42,7 @@ class Utils(commands.Cog):
             else:
                 usernickname = user.display_name
             date_format = config.date_format
-            embed = discord.Embed(color = discord.Color.orange())
+            embed = discord.Embed(color = discord.Color.blue())
             embed.set_author(name=str(user), icon_url=user.avatar_url)
             embed.set_thumbnail(url=user.avatar_url)
             embed.add_field(name="ID", value=user.id)
@@ -59,7 +59,7 @@ class Utils(commands.Cog):
             else:
                 usernickname = user.display_name
             date_format = config.date_format
-            embed = discord.Embed(color = discord.Color.orange())
+            embed = discord.Embed(color = discord.Color.blue())
             embed.set_author(name=str(user), icon_url=user.avatar_url)
             embed.set_thumbnail(url=user.avatar_url)
             embed.add_field(name="ID", value=user.id)
@@ -77,7 +77,7 @@ class Utils(commands.Cog):
     @commands.command()
     async def joined(self, ctx, member: discord.Member):
         """Says when a member joined."""
-        em = discord.Embed(title = '{0.name} joined in {0.joined_at}'.format(member), color = discord.Color.orange())
+        em = discord.Embed(title = '{0.name} joined in {0.joined_at}'.format(member), color = discord.Color.blue())
         await ctx.send(embed = em)
 
 
@@ -95,7 +95,7 @@ class Utils(commands.Cog):
         icon = str(ctx.guild.icon_url)
         embed = discord.Embed(
             description=description,
-            color=discord.Color.orange()
+            color=discord.Color.blue()
             )
         embed.set_thumbnail(url=icon)
         embed.set_author(name=name, icon_url=icon)

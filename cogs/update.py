@@ -45,7 +45,7 @@ class Update(commands.Cog):
                 shutil.rmtree(tmpdir + '/updatecheck')
             #os.mkdir('/tmp/freeupdate')
             HTTPS_REMOTE_URL = globalconfig.github_login_url
-            first_embed = discord.Embed(title = "Checking for updates...", description = "FreeDiscord is now checking for updates. Please be patient.", color = discord.Color.orange())
+            first_embed = discord.Embed(title = "Checking for updates...", description = "FreeDiscord is now checking for updates. Please be patient.", color = discord.Color.blue())
             # send a first message with an embed
             msg = await ctx.send(embed=first_embed)
             DEST_NAME = tmpdir + '/updatecheck'
