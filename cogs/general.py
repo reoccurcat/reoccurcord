@@ -29,8 +29,12 @@ class General(commands.Cog):
         serverNumber = len(servers)
         em.add_field(name = "Number of servers this instance is in", value = serverNumber)
         cpuUsage = psutil.cpu_percent()
-        em.add_field(name = "CPU usage of host", value = cpuUsage)
+        em.add_field(name="Host CPU Usage", value=f"{cpuUsage}%")
+        memUsage = psutil.virtual_memory().percent
+        em.add_field(name="Host Memory Usage", value=f"{memUsage}%")
         em.add_field(name = "Ping", value = "`"f"{round(self.bot.latency*1000)} ms`")
+        em.add_field(name="Prefix", value=f"`{localconfig.prefix}`")
+        em.add_field(name="Bot Owner", value=f"<@!{localconfig.ownerID}>")
         current_time = time.time()
         difference = int(round(current_time - start_time))
         text = str(datetime.timedelta(seconds=difference))
