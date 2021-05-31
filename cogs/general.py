@@ -18,11 +18,13 @@ class General(commands.Cog):
 
     @commands.command(description='Shows information about bot instance.')
     async def about(self, ctx):
-        em = discord.Embed(title = "About this instance", color = discord.Color.orange())
-        em.add_field(name = "Website", value = "https://freediscord.ga")
-        em.add_field(name = "Project URL", value = "https://github.com/reoccurdevs/freediscord/")
+        em = discord.Embed(title = "About this instance", color = discord.Color.blue())
+        em.add_field(name = "Website", value = "https://fd.reoccur.tech")
+        em.add_field(name = "Project URL", value = "https://github.com/reoccurcat/freediscord/")
         em.add_field(name = "Support server", value = "https://discord.gg/BNhVjFyB3S")
-        em.add_field(name = "Main bot invite link", value = "https://freediscord.ga/invite")
+        em.add_field(name = "Main bot invite link", value = "https://fd.reoccur.tech/invite")
+        em.add_field(name = "Terms of Service", value = "https://fd.reoccur.tech/tos")
+        em.add_field(name = "Privacy Policy", value = "https://fd.reoccur.tech/privacy")
         servers = list(self.bot.guilds)
         serverNumber = len(servers)
         em.add_field(name = "Number of servers this instance is in", value = serverNumber)
