@@ -42,12 +42,12 @@ bot.load_extension("cogs.fun")
 
 @bot.event
 async def on_message(msg):
-    # if str(msg.author.id) in config.blacklist:
-    #     for command in globalconfig.commands:
-    #         if msg.content.__contains__(str(command)):
-    #             em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
-    #             await msg.channel.send(embed = em, delete_after=5.0)
-    #             return
+    if str(msg.author.id) in config.blacklist:
+        for command in globalconfig.commands:
+            if msg.content.__contains__(str(command)):
+                em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
+                await msg.channel.send(embed = em, delete_after=5.0)
+                return
     for word in config.bad_words:
         if word in msg.content.lower():
             await msg.delete()
