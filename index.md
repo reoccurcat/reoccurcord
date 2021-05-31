@@ -1,5 +1,10 @@
 # FreeDiscord
 ## Welcome to the official GitHub page of the FreeDiscord bot!
+
+### To invite the bot, click [here](https://fd.reoccur.tech/invite). 
+### For the ToS, click [here](https://fd.reoccur.tech/tos).
+### For the Privacy Policy, click [here](https://fd.reoccur.tech/privacy).
+
 FreeDiscord is a Discord bot made formerly by the reoccurdevs team but taken over by the last dev that worked on it that you can edit and self host. If you fork this project, please don't make a new project acting like this project is dead. **It isn't.** If you want to fork it and make a new bot, that's fine, but please give us credit. :)
 If you find an issue, or have a feature suggestion, please let us know by opening an issue [here](https://github.com/reoccurcat/freediscord/issues).
 
