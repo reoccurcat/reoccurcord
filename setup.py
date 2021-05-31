@@ -144,35 +144,6 @@ def blacklistWrite() :
         print("Invalid response, please rerun the script.")
         exit()
 
-def immunerolesWrite() :
-    print("Please put in names of the roles that you want to be immune to the mute command.\nIf you don't want this feature just hit enter on this prompt and type 's' when it asks if what you inputted is correct.\nThe format is ")
-    print('["RoleName1", "RoleName2", "RoleName3"]')
-    immuneroles = input("Enter the immune roles (make sure to use the format): ")
-    verificationFour = input("Is this correct? (y/n/s): '" + immuneroles + "'")
-    if verificationFour == "y":
-        print("Writing...")
-        config = open('config.py', 'a')
-        writePrefixTemplate = "immune_roles = " + immuneroles + "\n"
-        config.write(writePrefixTemplate)
-        config.close()
-        print("Written!")
-        print()
-    elif verificationFour == "n":
-        print("Please rerun the file and input the roles that you want to be immune.")
-        exit()
-    elif verificationFour == "s":
-        print("Writing...")
-        config = open('config.py', 'a')
-        writePrefixTemplate = "immune_roles = []\n"
-        config.write(writePrefixTemplate)
-        config.close()
-        print("Written!")
-        print()
-        print("You have chosen not to input immune roles. You may add them by editing the config.py file later.")
-    elif verificationFour != "n" or "y" or "s":
-        print("Invalid response, please rerun the script.")
-        exit()
-
 def dateformatWrite() :
     print("Please choose the date format you want to use in the commands.")
     print("Choices: 1) day/month/year hour:minutes AM/PM 2) month/day/year hour:minutes AM/PM 3) day/month/year hour:minutes (24 hour) 4) month/day/year hour:minutes (24 hour)")
@@ -221,14 +192,13 @@ prefixWrite()
 ownerIDWrite()
 vtapiWrite()
 badwordWrite()
-immunerolesWrite()
 dateformatWrite()
-#blacklistWrite()
+blacklistWrite()
 
 config = open('config.py', 'a')
 config.write("latest_version = 'unknown'")
 config.close()
-print("Your config file should be written now!")
+print("Your configuration file should be written now!")
 print("To start your bot, run 'python3 start.py'")
 print("Have a nice day! :)")
 exit()
