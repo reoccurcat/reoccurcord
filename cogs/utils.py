@@ -30,7 +30,7 @@ class Utils(commands.Cog):
         icon_webp = f'[GIF]({user.avatar_url})' if user.is_avatar_animated() else f'[WEBP]({user.avatar_url})'
         icon_png = user.avatar_url_as(format='png')
         icon_jpg = user.avatar_url_as(format='jpg')
-        emb = discord.Embed(title=f"{user.name}'s Avatar", description=f'[PNG]({icon_png}) | [JPG]({icon_jpg}) | {icon_webp}', color= discord.Color.blue())
+        embed = discord.Embed(title=f"{user.name}'s Avatar", description=f'[PNG]({icon_png}) | [JPG]({icon_jpg}) | {icon_webp}', color= discord.Color.blue())
         embed.set_image(url=user.avatar_url)
         await ctx.send(embed=embed) #send it in an embed with different types of formats of the image
 
