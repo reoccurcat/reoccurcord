@@ -26,11 +26,13 @@ class Utils(commands.Cog):
     async def avatar(self, ctx, *, user: discord.Member = None):
         """Get a link to somebody's avatar."""
         if user is None:
-            user = ctx.author
-            await ctx.send(user.avatar_url)
-        else:
-            await ctx.send(user.avatar_url)
-
+            user = ctx.author # removed unnecessary else statement
+        icon_webp = f'[GIF]({user.avatar_url})' if user.is_avatar_animated() else f'[WEBP]({user.avatar_url})'
+        icon_png = user.avatar_url_as(format='png')
+        icon_jpg = user.avatar_url_as(format='jpg')
+        embed = discord.Embed(title=f"{user.name}'s Avatar", description=f'[PNG]({icon_png}) | [JPG]({icon_jpg}) | {icon_webp}', color= discord.Color.blue())
+        embed.set_image(url=user.avatar_url)
+        await ctx.send(embed=embed) #send it in an embed with different types of formats of the image
 
     @commands.command()
     async def userinfo(self, ctx, *, user: discord.Member = None):
