@@ -22,7 +22,7 @@ class Help(commands.Cog):
             em.add_field(name = "Moderation", value = "ban, changenick, delwarn, kick, modnick, mute, purge, unban, unmute, warn, warns")
             em.add_field(name = "Settings", value = "botstatus, botstatusrepeat")
             em.add_field(name = "Utils", value = "avatar, joined, ping, quickpoll, uptime, userinfo")
-            em.add_field(name = "Fun", value = "add, choose, f, emote")
+            em.add_field(name = "Fun", value = "add, choose, f, emote, image")
             em.add_field(name = "Caesarcrypt", value = "twisted_msg, untwisted_msg")
             em.add_field(name = "VirusTotal", value = "scanurl, checkhash")
             em.add_field(name = "Update", value = "updatecheck, updatebot, updatecogs")
@@ -115,6 +115,11 @@ class Help(commands.Cog):
     @help.command(name="emote")
     async def _emote(self, ctx):
         em = discord.Embed(title = "Fun: emote", description = config.prefix + "emote \n\nEmote command.", color = discord.Color.blue())
+        await ctx.send(embed = em)
+        
+    @help.command(name="image")
+    async def _image(self, ctx):
+        em = discord.Embed(title = "Fun: image", description = config.prefix + "image <message to search up> \n\nSearches an image up on the internet and sends it on Discord.", color = discord.Color.blue())
         await ctx.send(embed = em)
 
     # Settings commands
