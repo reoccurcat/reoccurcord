@@ -10,6 +10,12 @@ import psutil
 import config
 import bot
 import random
+import requests
+from bs4 import BeautifulSoup 
+
+def getdata(url): 
+    r = requests.get(url) 
+    return r.text
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -73,6 +79,59 @@ class Fun(commands.Cog):
         em = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
         msg = await ctx.send(embed = em)
         await msg.add_reaction('🇫')
+
+    @commands.command()
+    async def image(self, ctx, *, query):
+        newquery = query.replace(" ", "+")
+        #await ctx.send(newquery)
+        images = []
+        htmldata = getdata(f"https://searx.prvcy.eu/search?q={str(newquery)}&categories=images")
+        #print(f"https://www.bing.com/images/search?q={str(newquery)}")
+        soup = BeautifulSoup(htmldata, 'html.parser') 
+        for item in soup.find_all('img'):
+            if "data:image" not in str(item):
+                if "/sa/" not in str(item):
+                    if "/rp/" not in str(item):
+                        try:
+                            replace1 = item['src'].replace("%3A", ":")
+                            replace2 = replace1.replace("%2F", "/")
+                            replace3 = replace2.replace("%3F", "/")
+                            replace4 = replace3.replace("%3D", "/")
+                            replace5 = replace4.replace("%26", "?")
+                            if "gstatic" in replace5:
+                                replace6 = replace5.replace("images/", "images?")
+                                replace7 = replace6.replace("q/", "q=")
+                                lefttext = replace7.split("?usqp/")[0]
+                                replace8 = lefttext.replace("?usqp/", "")
+                                righttext = replace8.split("/image_proxy?url=")[1]
+                                print(righttext)
+                                images.append(righttext)
+                            else:
+                                righttext = replace5.split("/image_proxy?url=")[1]
+                                print(righttext)
+                                images.append(righttext)
+                        except:
+                            pass
+        #for url in images:
+        #    if "&c=" in url:
+        #        right_text = url.split("&c=")[1]
+        #        newtext = f"&c={right_text}"
+        #        print(f"Right text is {newtext}")
+        #        sep = '?w'
+        #        stripped = url.split(sep, 1)[0]
+        #        stripped += newtext
+        #        newimages = []
+                #newimages.append(stripped)
+        #        print(stripped)
+        #        newimages.append(stripped) 
+                #if stripped != f"https://tse1.mm.bing.net/th":
+                #    if stripped != f"https://tse2.mm.bing.net/th":
+                #        if stripped != f"https://tse3.mm.bing.net/th":
+                #            if stripped != f"https://tse4.mm.bing.net/th":
+                #                print(stripped)
+                #                newimages.append(stripped)                           
+        printimage = random.choice(images)
+        await ctx.send(str(printimage))
 
 
         
