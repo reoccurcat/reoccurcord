@@ -78,8 +78,12 @@ class Moderation(commands.Cog):
         #BTW need to import time&asyncio module to work.
         """Mute a member."""
         if timeconvertion(mutetime) != False:
-            role = discord.utils.get(user.guild.roles, name="muted")
-            await user.add_roles(role)
+            role = discord.utils.get(user.guild.roles, name="muted") # if it doesn't exist, returns as None
+            if not role: # if role returns as none, create a role called "muted"
+                role = await ctx.guild.create_role(name="muted") # create the role, also grabs the discord.Role object
+                for channel in guild.channels: # iterating over channels in the guild
+                        await channel.set_permissions(role, speak=False, send_messages=False, read_message_history=True, read_messages=True) # setting the role's permissions
+            await user.add_roles(role) 
             em = discord.Embed(title = "User has been muted for " + "`{}`".format(str(mutetime)) + ".", color = discord.Color.blue())
             await ctx.send(embed = em)
             await asyncio.sleep(timeconvertion(mutetime))
@@ -118,6 +122,10 @@ class Moderation(commands.Cog):
     async def unmute(self, ctx, user: discord.Member):
         """Unmute a member."""
         role = discord.utils.get(user.guild.roles, name="muted")
+        if not role: # if role returns as none, create a role called "muted"
+                role = await ctx.guild.create_role(name="muted") # create the role, also grabs the discord.Role object
+                for channel in guild.channels: # iterating over channels in the guild
+                        await channel.set_permissions(role, speak=False, send_messages=False, read_message_history=True, read_messages=True) # setting the role's permissions
         await user.remove_roles(role)
         em = discord.Embed(title = "Successfully unmuted `" + user.name + "`", color = discord.Color.green())
         await ctx.send(embed = em)
