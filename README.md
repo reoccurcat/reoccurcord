@@ -33,7 +33,8 @@ You can find the support server here:
 [![Join our Discord server!](https://invidget.switchblade.xyz/xzPRBF9bhd)](http://discord.gg/xzPRBF9bhd)
 
 You can invite the main bot instance here:
-[Main Bot](https://fd.reoccur.tech/invite)
+
+[Main Bot Invite Link](https://fd.reoccur.tech/invite)
 
 Like earlier said, if you have any feature requests or issues with the bot, open an issue [here](https://github.com/reoccurcat/freediscord/issues)!
 Enjoy the bot! We hope you have as much fun with it as we had programming it! :)
