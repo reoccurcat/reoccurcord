@@ -39,6 +39,11 @@ async def on_ready():
         user = bot.get_user(int(config.ownerID))
         await user.send("The bot is back online.")
 
+os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
+os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
+os.environ["JISHAKU_HIDE"] = "True"
+os.environ["JISHAKU_RETAIN"] = "True"
+bot.load_extension("jishaku")
 #loading cog files (instead of loading one by one, using a for loop to load cogs)
 for filename in os.listdir('./cogs'):
      if filename.endswith(".py"):

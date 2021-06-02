@@ -13,6 +13,8 @@ import random
 import aiohttp
 import discord  # removed "from discord import embeds", doesn't do anything
 import requests
+import time
+import asyncio
 from bs4 import BeautifulSoup
 from discord.ext import commands
 import concurrent.futures, os, importlib, sys, shutil
@@ -102,6 +104,22 @@ class Fun(commands.Cog):
         em = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
         msg = await ctx.send(embed = em)
         await msg.add_reaction('🇫')
+        def check(reaction, user):
+            return msg == reaction.message
+        usersreacted = []
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for('reaction_add', check=check, timeout=30)
+            except asyncio.TimeoutError:
+                new_msg = await ctx.fetch_message(msg.id)
+                number = len([x for x in await new_msg.reactions[0].users().flatten() if not x.bot])
+                return await ctx.send(f"A total of {number} people paid their respects to **{message2}**.")
+            else:
+                if str(reaction.emoji) == "🇫":
+                    if user.name in usersreacted:
+                        continue
+                    await ctx.send(f"**{user.name}** has paid their respects.")
+                    usersreacted.append(user.name)
 
     @commands.command()
     async def image(self, ctx, *, query):
