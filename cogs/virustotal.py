@@ -76,7 +76,7 @@ class virustotal(commands.Cog):
         try:
             vturl = "https://www.virustotal.com/api/v3/urls/{}".format(result_id)
         except Exception:
-            em = discord.Embed(title = "Something went wrong.", color = discord.Colour.red)
+            em = discord.Embed(title = "Something went wrong.", color = discord.Color.red())
             em.set_author(name="VirusTotal", icon_url=iconurl)
             await ctx.send(embed = em)
             return
