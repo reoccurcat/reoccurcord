@@ -26,7 +26,7 @@ requests and urllib are blocking. Do not use these libraries within your asynchr
 discord.py uses aiohttp, so it should already be installed.
 """
 
-def getdata(url):  # switch from requests module to aiohttp (see above for reason)
+async def getdata(url):  # switch from requests module to aiohttp (see above for reason)
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             r = await response.text()  
@@ -37,7 +37,7 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def add(self, ctx, *integers = None): # creates a list of input (I haven't typecasted to (int) due to multitude of reasons)
+    async def add(self, ctx, *, integers = None): # creates a list of input (I haven't typecasted to (int) due to multitude of reasons)
         """Adds multiple numbers together."""
         if not integers:
             return await ctx.send("Provide at least two or more numbers!")
@@ -46,13 +46,13 @@ class Fun(commands.Cog):
         
         new_list = [] # initializing new list
         for number in integers: # iterating over the original list of numbers
-        try:
-           new_number = float(number) # conver the output to integer
-           new_list.append([new_number, str(number)]) # append the converted string along with the string as a list
-        except (TypeError, ValueError):
-           pass # if a string is passed, pass it
-        equation = " + ".join([num[1] for num in new_list]) #iterate over our new_list to get the string part of numbers and join them
-        total = sum([num[0] for num in new_list]) # iterate over the new_list and add all the appended float numbers together
+            try:
+                new_number = float(number) # conver the output to integer
+                new_list.append([new_number, str(number)]) # append the converted string along with the string as a list
+            except (TypeError, ValueError):
+                pass # if a string is passed, pass it
+            equation = " + ".join([num[1] for num in new_list]) #iterate over our new_list to get the string part of numbers and join them
+            total = sum([num[0] for num in new_list]) # iterate over the new_list and add all the appended float numbers together
         em = discord.Embed(title = f"**__Input:__**\n```py\n{equation}\n```\n**__Output:__**\n```py\n{total}\n```", color = discord.Color.blue()) # send both the input and output
         await ctx.send(embed = em)
 
@@ -116,7 +116,7 @@ class Fun(commands.Cog):
             images = importedquery.cache
         else:
             images = []
-            htmldata = getdata(f'https://searx.prvcy.eu/search?q={query}&categories=images')
+            htmldata = await getdata(f'https://searx.prvcy.eu/search?q={query}&categories=images')
             #print(f"https://www.bing.com/images/search?q={str(newquery)}")
             soup = BeautifulSoup(htmldata, 'html.parser')
             for item in soup.find_all('img'):
