@@ -12,7 +12,7 @@ import bot
 import random
 import requests
 from bs4 import BeautifulSoup 
-import concurrent.futures, os, importlib, sys
+import concurrent.futures, os, importlib, sys, shutil
 
 def getdata(url): 
     r = requests.get(url) 
@@ -126,7 +126,34 @@ class Fun(commands.Cog):
         printimage = random.choice(images)
         await ctx.send(str(printimage))
 
+    @commands.command()
+    async def listcache(self, ctx):
+        try:
+            em = discord.Embed(title="Image Cache Files", description=f"`{', '.join(os.listdir('./cache/'))}`", color=discord.Color.blue())
+            await ctx.send(embed=em)
+        except OSError:
+            em = discord.Embed(title="Error", description="No cache folder could be found.", color=discord.Color.red())
+            await ctx.send(embed=em)
 
-        
+
+    @commands.command()
+    async def clearcache(self, ctx, clear = None):
+        try:
+            clear = clear.replace(" ", "+")
+        except:
+            pass
+        if clear == None:
+            shutil.rmtree("./cache")
+            em = discord.Embed(title="Image Cache Directory Cleared", description="The `./cache` directory has been cleared. Images will take a few seconds longer to fetch as they recache.", color=discord.Color.green())
+            await ctx.send(embed=em)
+        else:
+            if os.path.isfile(f'cache/{clear}.py'):
+                os.remove(f"./cache/{clear}.py")
+                em = discord.Embed(title="Image Cache Directory Cleared", description=f"The `./cache/{clear}.py` file has been deleted. Images will take a few seconds longer to fetch as they recache.", color=discord.Color.green())
+                await ctx.send(embed=em)
+            else:
+                em = discord.Embed(title="No cache file found.", description=f"There was no cache file found at `./cogs/{clear}.py`.", color=discord.Color.red())
+                await ctx.send(embed=em)
+
 def setup(bot):
     bot.add_cog(Fun(bot))

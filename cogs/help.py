@@ -122,6 +122,17 @@ class Help(commands.Cog):
         em = discord.Embed(title = "Fun: Image", description = config.prefix + "image <image to search up> \n\nSearches an image up on the internet and sends it on Discord.", color = discord.Color.blue())
         await ctx.send(embed = em)
 
+    @help.command(name="clearcache")
+    async def _clearcache(self, ctx):
+        em = discord.Embed(title = "Fun: ClearCache", description = config.prefix + "clearcache <optional cache file name to clear> \n\nClears the cache of an image search. This will make the cache file regenerate on the next image search.", color = discord.Color.blue())
+        await ctx.send(embed = em)
+
+    @help.command(name="listcache")
+    async def _listcache(self, ctx):
+        em = discord.Embed(title = "Fun: ListCache", description = config.prefix + "listcache \n\nLists the cache files of the image searches.", color = discord.Color.blue())
+        await ctx.send(embed = em)
+
+
     # Settings commands
     @help.command(name="botstatus")
     async def _botstatus(self, ctx):
