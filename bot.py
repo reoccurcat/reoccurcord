@@ -35,7 +35,7 @@ async def on_ready():
             webhook = discord.Webhook.from_url(config.infowebhook, adapter=discord.AsyncWebhookAdapter(session))
             e = discord.Embed(title="Bot Back Online!", description="This FreeDiscord instance is back online.", color=discord.Color.green())
             await webhook.send(embed=e)
-    except:
+    except AttributeError:
         user = bot.get_user(int(config.ownerID))
         await user.send("The bot is back online.")
 

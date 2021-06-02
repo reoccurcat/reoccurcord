@@ -4,7 +4,12 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
-import time, os, random, asyncio, config, string
+import time
+import os
+import random
+import asyncio
+import config
+import string
 from discord.ext import commands
 from discord.utils import get
 
@@ -23,11 +28,10 @@ def timeconvertion(time):# Time convertion
     letters_inside = ''.join(filter(str.isalpha, time))
     lettercount = len(letters_inside)
     to_convert = ''.join(filter(str.isdigit, time))
-    if time[-1].isalpha() is True and time[0].isdigit() and lettercount == 1 and letters_inside in convertion and time.isalnum() == True:
+    if time[-1].isalpha() is True and time[0].isdigit() and lettercount == 1 and letters_inside in convertion and time.isalnum() is True:
         timeconverted = int(to_convert) * convertion[time[-1]]
         return int(timeconverted)
-    else:
-        return False
+    return False
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -38,8 +42,6 @@ class Moderation(commands.Cog):
     async def purge(self, ctx, amount=10):
         """Purge messages, default amount is 10."""
         await ctx.channel.purge(limit=amount+1)
-        em = discord.Embed(title = "Successfully purged " + str(amount) + " message(s).", color = discord.Color.blue())
-        await ctx.send(embed = em)
 
 
     @commands.command()
@@ -77,18 +79,14 @@ class Moderation(commands.Cog):
     async def mute(self, ctx, user: discord.Member, mutetime):
         #BTW need to import time&asyncio module to work.
         """Mute a member."""
-        if timeconvertion(mutetime) != False:
-            role = discord.utils.get(user.guild.roles, name="muted") # if it doesn't exist, returns as None
-            if not role: # if role returns as none, create a role called "muted"
-                role = await ctx.guild.create_role(name="muted") # create the role, also grabs the discord.Role object
-                for channel in guild.channels: # iterating over channels in the guild
-                        await channel.set_permissions(role, speak=False, send_messages=False, read_message_history=True, read_messages=True) # setting the role's permissions
-            await user.add_roles(role) 
+        if timeconvertion(mutetime) is not False:
+            role = discord.utils.get(user.guild.roles, name="muted")
+            await user.add_roles(role)
             em = discord.Embed(title = "User has been muted for " + "`{}`".format(str(mutetime)) + ".", color = discord.Color.blue())
             await ctx.send(embed = em)
             await asyncio.sleep(timeconvertion(mutetime))
             await user.remove_roles(role)
-        elif timeconvertion(mutetime) == False:
+        elif timeconvertion(mutetime) is False:
             em = discord.Embed(title = "The time format doesn't seem right.")
             await ctx.send(embed = em)
 
@@ -109,7 +107,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
-    async def unban(self, ctx, id: int):
+    async def unban(self, ctx, userid: int):
         """Unban a member."""
         userToUnban = await self.bot.fetch_user(id)
         await ctx.guild.unban(userToUnban)
@@ -122,10 +120,6 @@ class Moderation(commands.Cog):
     async def unmute(self, ctx, user: discord.Member):
         """Unmute a member."""
         role = discord.utils.get(user.guild.roles, name="muted")
-        if not role: # if role returns as none, create a role called "muted"
-                role = await ctx.guild.create_role(name="muted") # create the role, also grabs the discord.Role object
-                for channel in guild.channels: # iterating over channels in the guild
-                        await channel.set_permissions(role, speak=False, send_messages=False, read_message_history=True, read_messages=True) # setting the role's permissions
         await user.remove_roles(role)
         em = discord.Embed(title = "Successfully unmuted `" + user.name + "`", color = discord.Color.green())
         await ctx.send(embed = em)
@@ -135,7 +129,6 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def warn(self, ctx, user : discord.Member, *reason):
         args = " ".join(reason[:])
-
         if not os.path.exists('warns'):
             os.makedirs('warns')
         try:
@@ -149,11 +142,11 @@ class Moderation(commands.Cog):
 
             elif os.stat("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py").st_size == 0:
                 await ctx.send("Successfully warned that member.")
-                writeReasonTemplate = str(args)
+                writeReasonTemplate = f"str(args)"
                 warns = open("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py", 'a')
                 warns.write(writeReasonTemplate)
                 warns.close()
-        except:
+        except OSError:
             await ctx.send("Successfully warned that member.")
             writeReasonTemplate = str(args)
             warns = open("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py", 'a')
@@ -179,7 +172,7 @@ class Moderation(commands.Cog):
             elif os.stat("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py").st_size == 0:
                 em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings", color = discord.Color.blue())
                 await ctx.send(embed = em)
-        except:
+        except OSError:
                 em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings", color = discord.Color.blue())
                 await ctx.send(embed = em)
 

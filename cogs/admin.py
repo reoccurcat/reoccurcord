@@ -59,7 +59,7 @@ class Admin(commands.Cog):
             first_embed = discord.Embed(title = "Restarting bot...", color = discord.Color.blue())
             msg = await ctx.send(embed=first_embed)
             dir_path = os.getcwd()
-            subprocess.Popen(['python3', dir_path + '/bot.py'])
+            subprocess.Popen(['python3', f'{dir_path}/bot.py'])
             new_embed = discord.Embed(title = "Restarted bot!", color = discord.Color.green())
             await msg.edit(embed=new_embed)
             await ctx.bot.close()
@@ -99,9 +99,9 @@ class Admin(commands.Cog):
     @commands.command()
     async def getinvite(self, ctx, serverID, channelName = None):
         if str(ctx.message.author.id) == config.ownerID:
-            if channelName != None:
+            if channelName is not None:
                 channelQuery = channelName
-            elif channelName == None:
+            elif channelName is None:
                 channelQuery = "general"
             server = self.bot.get_guild(int(serverID))
             #await ctx.send(server)
@@ -109,7 +109,7 @@ class Admin(commands.Cog):
             #channel = discord.utils.get(server.channels, name='general')
             #await ctx.send(channel)
             for channel in server.channels:
-                if channel.name.__contains__(channelQuery) == True:
+                if channel.name.__contains__(channelQuery) is True:
                     #await ctx.send(channel.id)
                     embed.add_field(name = "Channel Name", value = channel.name)
                     embed.add_field(name = "Channel ID", value = channel.id)

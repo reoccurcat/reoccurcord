@@ -4,6 +4,11 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord, time, json, base64, requests, asyncio
+import time
+import json
+import base64
+import requests
+import asyncio
 from discord.ext import commands
 import config
 
@@ -28,11 +33,11 @@ class virustotal(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def checkhash(self, ctx, hash: str):
+    async def checkhash(self, ctx, vthash: str):
         """VirusTotal Integration"""
         await ctx.message.delete()
         header = {'x-apikey': '{}'.format(apikey)}
-        vturl = "https://www.virustotal.com/api/v3/files/{}".format(hash)
+        vturl = "https://www.virustotal.com/api/v3/files/{}".format(vthash)
         response = requests.get(vturl, headers = header).json()
         response = str(response).split(",")
         parsed = vt_json_parsing(response)
@@ -40,16 +45,15 @@ class virustotal(commands.Cog):
             em = discord.Embed(title = "Something went wrong, could be the hash not in the VirusTotal database.", color = discord.Color.red())
             await ctx.send(embed = em)
             return
-        else:
-            generated_link = "https://www.virustotal.com/gui/file/{}/detection".format(hash)
-            if int(parsed) == 0 :
-                em = discord.Embed(title = "Detections: {}".format(parsed), color = discord.Color.green())
-            elif int(parsed) >= 1 :
-                em = discord.Embed(title = "Detections: {}".format(parsed), color = discord.Color.red())
-            em.set_author(name="VirusTotal", icon_url=iconurl)
-            em.add_field(name="Link:", value=generated_link)
-            await ctx.send(embed = em)
-            return
+        generated_link = "https://www.virustotal.com/gui/file/{}/detection".format(vthash)
+        if int(parsed) == 0 :
+            em = discord.Embed(title = "Detections: {}".format(parsed), color = discord.Color.green())
+        elif int(parsed) >= 1 :
+            em = discord.Embed(title = "Detections: {}".format(parsed), color = discord.Color.red())
+        em.set_author(name="VirusTotal", icon_url=iconurl)
+        em.add_field(name="Link:", value=generated_link)
+        await ctx.send(embed = em)
+        return
 
 
     @commands.command()

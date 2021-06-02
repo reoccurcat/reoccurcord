@@ -26,9 +26,9 @@ class Update(commands.Cog):
         if str(ctx.message.author.id) == config.ownerID:
             # username = os.getlogin()
             if sys.platform == "linux" or sys.platform == "linux2" or sys.platform == "darwin":
-                tmpdir = "/tmp"
+                tmpdir = "./tmp"
             elif sys.platform == "win32":
-                tmpdir = "/Temp"
+                tmpdir = "./Temp"
             with open('config.py') as f:
                 if not 'latest_version' in f.read():
                     with open('config.py', 'a') as writeFile :
@@ -93,31 +93,31 @@ class Update(commands.Cog):
         if str(ctx.message.author.id) == config.ownerID:
            if sys.platform == "linux" or sys.platform == "linux2":
                 try:
-                    os.mkdir('/tmp/freeupdate')
+                    os.mkdir('./tmp/freeupdate')
                 except OSError:
-                    os.rmdir('/tmp/freeupdate')
-                    os.mkdir('/tmp/freeupdate')
+                    os.rmdir('./tmp/freeupdate')
+                    os.mkdir('./tmp/freeupdate')
                 HTTPS_REMOTE_URL = globalconfig.github_login_url
-                DEST_NAME = '/tmp/freeupdate'
+                DEST_NAME = './tmp/freeupdate'
                 cloned_repo = Repo.clone_from(HTTPS_REMOTE_URL, DEST_NAME)
                 dir_path = os.getcwd()
                 shutil.rmtree(dir_path + "/cogs/")
                 path = dir_path
-                src = '/tmp/freeupdate/cogs'
+                src = './tmp/freeupdate/cogs'
                 dest = dir_path + "/cogs"
                 destination = shutil.copytree(src, dest)
-                copyfile('/tmp/freeupdate/bot.py', dir_path + '/bot.py')
-                copyfile('/tmp/freeupdate/setup.py', dir_path + '/setup.py')
-                copyfile('/tmp/freeupdate/README.md', dir_path + '/README.md')
-                copyfile('/tmp/freeupdate/globalconfig.py', dir_path + '/globalconfig.py')
-                copyfile('/tmp/freeupdate/start.py', dir_path + '/start.py')
-                shutil.rmtree('/tmp/freeupdate')
+                copyfile('./tmp/freeupdate/bot.py', dir_path + '/bot.py')
+                copyfile('./tmp/freeupdate/setup.py', dir_path + '/setup.py')
+                copyfile('./tmp/freeupdate/README.md', dir_path + '/README.md')
+                copyfile('./tmp/freeupdate/globalconfig.py', dir_path + '/globalconfig.py')
+                copyfile('./tmp/freeupdate/start.py', dir_path + '/start.py')
+                shutil.rmtree('./tmp/freeupdate')
                 print("Done! Restart the bot to apply the changes!")
                 em = discord.Embed(title = "Updated!", description = "FreeDiscord updated! No error reported. Check your console to confirm this.", color = discord.Color.green())
                 em.add_field(name = "Note", value = "The bot will now restart. If it doesn't, start it up manually. If it won't start, open an issue in FreeDiscord's GitHub repository.")
                 await ctx.send(embed = em)
                 dir_path = os.getcwd()
-                subprocess.Popen(['python3', dir_path + '/bot.py'])
+                subprocess.Popen(['python3', f'{dir_path}/bot.py'])
                 await ctx.bot.close()
            elif sys.platform == "win32":
                 em = discord.Embed(title = "`updatebot` is not yet available for Windows.", color = discord.Color.red())
@@ -136,20 +136,20 @@ class Update(commands.Cog):
         if str(ctx.message.author.id) == config.ownerID:
             # username = os.getlogin()
             try:
-                os.mkdir('/tmp/cogupdate')
+                os.mkdir('./tmp/cogupdate')
             except OSError:
-                os.rmdir('/tmp/cogupdate')
-                os.mkdir('/tmp/cogupdate')
+                os.rmdir('./tmp/cogupdate')
+                os.mkdir('./tmp/cogupdate')
             HTTPS_REMOTE_URL = globalconfig.github_login_url
-            DEST_NAME = '/tmp/cogupdate'
+            DEST_NAME = './tmp/cogupdate'
             cloned_repo = Repo.clone_from(HTTPS_REMOTE_URL, DEST_NAME)
             dir_path = os.getcwd()
             shutil.rmtree(dir_path + "/cogs/")
             path = dir_path
-            src = '/tmp/cogupdate/cogs'
+            src = './tmp/cogupdate/cogs'
             dest = dir_path + "/cogs"
             destination = shutil.copytree(src, dest)
-            shutil.rmtree('/tmp/cogupdate')
+            shutil.rmtree('./tmp/cogupdate')
             print("Done! Restart the bot to apply the changes!")
             em = discord.Embed(title = "Updated!", description = "Cogs updated! No error reported. Check your console to confirm this.", color = discord.Color.green())
             em.add_field(name = "Note", value = "If you want to use the new cogs, either restart the bot using `" + config.prefix + "restartbot` which will load all the cogs on startup (recommended), or reload every cog manually using `" + config.prefix + "reloadcog {every cog name}.`")

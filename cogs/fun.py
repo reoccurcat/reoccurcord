@@ -15,9 +15,13 @@ import discord  # removed "from discord import embeds", doesn't do anything
 import requests
 import time
 import asyncio
+import concurrent.futures 
+import os
+import importlib
+import sys
+import shutil
 from bs4 import BeautifulSoup
 from discord.ext import commands
-import concurrent.futures, os, importlib, sys, shutil
 
 ##############################################
 
@@ -70,34 +74,20 @@ class Fun(commands.Cog):
     @commands.command(description='#emotes')
     async def emote(self, ctx, emote : discord.Emoji = None):
         """emote command"""
-        if emote == None:
+        if emote is None:
             em = discord.Embed(title="No emote given", description = f"Please use `{config.prefix}emote <emote>`.", color = discord.Color.red())
             await ctx.send(embed=em)
-            return
-        else:
-            try:
-                em = discord.Embed(timestamp=emote.created_at, color = discord.Color.blue())
-                em.set_author(name=emote.name, icon_url=emote.url)
-                em.set_thumbnail(url=emote.url)
-                em.set_footer(text="Created on")
-                em.add_field(name="ID", value=emote.id)
-                em.add_field(name="Usage", value=f"`{emote}`")
-                em.add_field(name="URL", value=f"[click here]({emote.url})") # masked links instead of actually sending the full link
-                await ctx.send(embed=em)
-                return
-            except Exception:
-                em = discord.Embed(title="That emote probably is not in the server that the bot is in.")
-                await ctx.send(embed=em)
-                return
-        '''
-        else:
-            try:
-                emote = discord.utils(self.bot.get_all_emojis())
-                emote = discord.utils.get(self.bot.Emoji, name=emote)
-            except Exception as e:
-                await ctx.send(str(e))
-                return
-        '''
+        try:
+            em = discord.Embed(timestamp=emote.created_at, color = discord.Color.blue())
+            em.set_author(name=emote.name, icon_url=emote.url)
+            em.set_thumbnail(url=emote.url)
+            em.set_footer(text="Created on")
+            em.add_field(name="ID", value=emote.id)
+            em.add_field(name="Usage", value=f"`{emote}`")
+            em.add_field(name="URL", value=f"[click here]({emote.url})") # masked links instead of actually sending the full link
+            await ctx.send(embed=em)
+        except IndexError:
+            em = discord.Embed(title="Error", description="There was an error fetching the emote. The most likely cause is that it's from a server the bot isn't in.", color = discord.Color.red())
 
     @commands.command()
     async def f(self, ctx, *, message2):
@@ -115,10 +105,7 @@ class Fun(commands.Cog):
                 new_msg = await ctx.fetch_message(msg.id)
                 number = len([x for x in await new_msg.reactions[0].users().flatten() if not x.bot])
                 em3 = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
-                try:
-                    multipleusers = f"{', '.join(usersreacted)}"
-                except:
-                    multipleusers = f"{user.name}"
+                multipleusers = f"{', '.join(usersreacted)}"
                 em3.add_field(name="Users who paid respects", value=f"{multipleusers}\n**A total of {number} people paid their respects.**")
                 return await msg.edit(embed=em3)
                 #return await ctx.send(f"A total of {number} people paid their respects to **{message2}**.")
@@ -137,10 +124,7 @@ class Fun(commands.Cog):
                     usersreacted.append(user.name)
                     #await ctx.send(f"**{user.name}** has paid their respects.")
                     em2 = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
-                    try:
-                        multipleusers = f"{', '.join(usersreacted)}"
-                    except:
-                        multipleusers = f"{user.name}"
+                    multipleusers = f"{', '.join(usersreacted)}"
                     em2.add_field(name="Users who paid respects", value=f"{multipleusers}")
                     await msg.edit(embed=em2)
 
@@ -204,9 +188,9 @@ class Fun(commands.Cog):
     async def clearcache(self, ctx, clear = None):
         try:
             clear = clear.replace(" ", "+")
-        except:
+        except AttributeError:
             pass
-        if clear == None:
+        if clear is None:
             shutil.rmtree("./cache")
             em = discord.Embed(title="Image Cache Directory Cleared", description="The `./cache` directory has been cleared. Images will take a few seconds longer to fetch as they recache.", color=discord.Color.green())
             await ctx.send(embed=em)
@@ -236,7 +220,7 @@ class Fun(commands.Cog):
                  post = random.choice([p for p in posts if not p['stickied'] or p['is_self']])
                 except IndexError:
                     return await ctx.send("The subreddit you provided doesn't exist!")
-                if post['over_18'] == True and ctx.channel.nsfw is False:
+                if post['over_18'] is True and ctx.channel.nsfw is False:
                     return await ctx.send("Failed to get a post from that subreddit, try again in an NSFW channel.")
                 title = str(post['title'])
         embed=discord.Embed(title=f'{title}', colour=0xaf85ff, url=f"https://reddit.com/{post['permalink']}")

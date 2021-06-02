@@ -3,9 +3,10 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import discord, time
-from discord.ext import commands
+import discord
+import time
 import config
+from discord.ext import commands
 
 rounds_error = "No rounds given, syntax: command + rounds + message."
 
@@ -17,7 +18,7 @@ class Caesarcrypt(commands.Cog):
     async def twisted_msg(self, ctx, rounds = None, *, message: str):
         """Encrypt a message."""
         await ctx.message.delete()
-        if rounds == None:
+        if rounds is None:
             em = discord.Embed(title = "Wrong syntax.", description = rounds_error, color = discord.Color.red())
             return await ctx.send(embed = em)
         try:
@@ -45,7 +46,7 @@ class Caesarcrypt(commands.Cog):
     async def untwisted_msg(self, ctx, rounds: int, *, message: str):
         """Decrypt a message."""
         await ctx.message.delete()
-        if rounds == None:
+        if rounds is None:
             em = discord.Embed(title = "Wrong syntax.", description = rounds_error, color = discord.Color.red())
             return await ctx.send(embed = em)
         try:

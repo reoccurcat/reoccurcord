@@ -261,4 +261,3 @@ print("Your configuration file should be written now!")
 print("To start your bot, run 'python3 start.py'")
 print("Have a nice day! :)")
 exit()
-
