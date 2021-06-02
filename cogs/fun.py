@@ -15,7 +15,7 @@ import discord  # removed "from discord import embeds", doesn't do anything
 import requests
 from bs4 import BeautifulSoup
 from discord.ext import commands
-mport concurrent.futures, os, importlib, sys, shutil
+import concurrent.futures, os, importlib, sys, shutil
 
 ##############################################
 
