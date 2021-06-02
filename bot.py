@@ -2,13 +2,15 @@
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import requests
-import discord
-from discord.ext import commands
+
+import os
 import config
-import globalconfig
+import discord
 import aiohttp
 import datetime
+import requests
+import globalconfig
+from discord.ext import commands
 
 intents = discord.Intents.default()
 intents.members = True
@@ -37,16 +39,10 @@ async def on_ready():
         user = bot.get_user(int(config.ownerID))
         await user.send("The bot is back online.")
 
-bot.load_extension("cogs.general")
-bot.load_extension("cogs.utils")
-bot.load_extension("cogs.moderation")
-bot.load_extension("cogs.settings")
-bot.load_extension("cogs.caesarcrypt")
-bot.load_extension("cogs.help")
-bot.load_extension("cogs.update")
-bot.load_extension("cogs.admin")
-bot.load_extension("cogs.virustotal")
-bot.load_extension("cogs.fun")
+#loading cog files (instead of loading one by one, using a for loop to load cogs)
+for filename in os.listdir('./cogs'):
+     if filename.endswith(".py"):
+            bot.load_extension(f'cogs.{filename[:-3]}')
 
 @bot.event
 async def on_message(msg):
