@@ -26,7 +26,7 @@ def botupdate():
     if sys.platform == "linux" or sys.platform == "linux2":
         try:
             os.mkdir('./tmp/freeupdate')
-        except OSError:
+        except FileNotFoundError:
             os.rmdir('./tmp/freeupdate')
             os.mkdir('./tmp/freeupdate')
         HTTPS_REMOTE_URL = globalconfig.github_login_url
