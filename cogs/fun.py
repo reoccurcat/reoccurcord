@@ -178,6 +178,38 @@ class Fun(commands.Cog):
             else:
                 em = discord.Embed(title="No cache file found.", description=f"There was no cache file found at `./cogs/{clear}.py`.", color=discord.Color.red())
                 await ctx.send(embed=em)
+                
+    @commands.command(aliases=['rd'])
+    @commands.cooldown(2,5,commands.BucketType.user)
+    async def reddit(self, ctx, *, name):
+        posts = []
+        subreddit = f"{name}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://www.reddit.com/r/{subreddit}/.json") as r:
+                response = await r.json()
+                try:
+                 for i in response['data']['children']:
+                    posts.append(i['data'])
+                except KeyError:
+                    return await ctx.send("The subreddit you provided doesn't exist!")
+                try:
+                 post = random.choice([p for p in posts if not p['stickied'] or p['is_self']])
+                except IndexError:
+                    return await ctx.send("The subreddit you provided doesn't exist!")
+                if post['over_18'] == True and ctx.channel.nsfw is False:
+                    return await ctx.send("Failed to get a post from that subreddit, try again in an NSFW channel.")
+                title = str(post['title'])
+        embed=discord.Embed(title=f'{title}', colour=0xaf85ff, url=f"https://reddit.com/{post['permalink']}")
+        embed.set_footer(text=f"{post['upvote_ratio'] * 100:,}% Upvotes | Posted to r/{post['subreddit']}")
+        embed.set_image(url=post['url'])
+        await ctx.send(embed=embed)
+        
+    @reddit.error
+    async def on_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            seconds = round(error.retry_after, 2)
+            return await ctx.send("You are being rated-limited, please try again in {seconds} seconds!")
+    
 
 def setup(bot):
     bot.add_cog(Fun(bot))
