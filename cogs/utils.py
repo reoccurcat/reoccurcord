@@ -35,50 +35,37 @@ class Utils(commands.Cog):
         await ctx.send(embed=embed) #send it in an embed with different types of formats of the image
 
     @commands.command()
-    async def userinfo(self, ctx, *, user: discord.Member = None):
+    async def userinfo(self, ctx, user: discord.Member = None):
         """Gives information about a user."""
-        if user is None:
-            user = ctx.author
-            if user.display_name == user.name:
-                usernickname = "None"
-            else:
-                usernickname = user.display_name
-            date_format = config.date_format
-            embed = discord.Embed(color = discord.Color.blue())
-            embed.set_author(name=str(user), icon_url=user.avatar_url)
-            embed.set_thumbnail(url=user.avatar_url)
-            embed.add_field(name="ID", value=user.id)
-            embed.add_field(name="Nickname", value=usernickname)
-            embed.add_field(name="Joined", value=user.joined_at.strftime(date_format), inline=False)
-            members = sorted(ctx.guild.members, key=lambda m: m.joined_at)
-            embed.add_field(name="Registered", value=user.created_at.strftime(date_format), inline=True)
-            perm_string = ', '.join([str(p[0]).replace("_", " ").title() for p in user.guild_permissions if p[1]])
-            embed.add_field(name="Guild permissions", value=perm_string, inline=False)
-            return await ctx.send(embed=embed)
-        else:
-            if user.display_name == user.name:
-                usernickname = "None"
-            else:
-                usernickname = user.display_name
-            date_format = config.date_format
-            embed = discord.Embed(color = discord.Color.blue())
-            embed.set_author(name=str(user), icon_url=user.avatar_url)
-            embed.set_thumbnail(url=user.avatar_url)
-            embed.add_field(name="ID", value=user.id)
-            embed.add_field(name="Nickname", value=usernickname)
-            embed.add_field(name="Joined", value=user.joined_at.strftime(date_format), inline=False)
-            members = sorted(ctx.guild.members, key=lambda m: m.joined_at)
-            embed.add_field(name="Registered", value=user.created_at.strftime(date_format), inline=True)
-            perm_string = ', '.join([str(p[0]).replace("_", " ").title() for p in user.guild_permissions if p[1]])
-            embed.add_field(name="Guild permissions", value=perm_string, inline=False)
-            return await ctx.send(embed=embed)
         if isinstance(ctx.channel, discord.DMChannel):
             return
+        if user is None:
+            user = ctx.author
+        if user.display_name == user.name:
+            usernickname = "None"
+        else:
+            usernickname = user.display_name
+            
+        date_format = config.date_format
+        embed = discord.Embed(color = discord.Color.blue())
+        embed.set_author(name=str(user), icon_url=user.avatar_url)
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.add_field(name="ID", value=user.id)
+        embed.add_field(name="Nickname", value=usernickname)
+        embed.add_field(name="Joined", value=user.joined_at.strftime(date_format), inline=False)
+        members = sorted(ctx.guild.members, key=lambda m: m.joined_at)
+        embed.add_field(name="Registered", value=user.created_at.strftime(date_format), inline=True)
+        perm_string = ', '.join([str(p[0]).replace("_", " ").title() for p in user.guild_permissions if p[1]])
+        embed.add_field(name="Guild permissions", value=perm_string, inline=False)
+        return await ctx.send(embed=embed)
+        
 
 
     @commands.command()
-    async def joined(self, ctx, member: discord.Member):
+    async def joined(self, ctx, member: discord.Member = None):
         """Says when a member joined."""
+        if not member:
+            member = ctx.author
         em = discord.Embed(title = '{0.name} joined in {0.joined_at}'.format(member), color = discord.Color.blue())
         await ctx.send(embed = em)
 
@@ -112,9 +99,8 @@ class Utils(commands.Cog):
 
 
     @commands.command()
-    async def quickpoll(self, ctx, *poll):
+    async def quickpoll(self, ctx, *, poll): # umm why not just use (*, poll) instead of (*poll)
         await ctx.message.delete()
-        args = " ".join(poll[:])
         em = discord.Embed(title = f'{args}')
         msg = await ctx.send(embed = em)
         await msg.add_reaction('👍')
