@@ -114,12 +114,12 @@ class Help(commands.Cog):
 
     @help.command(name="emote")
     async def _emote(self, ctx):
-        em = discord.Embed(title = "Fun: emote", description = config.prefix + "emote \n\nEmote command.", color = discord.Color.blue())
+        em = discord.Embed(title = "Fun: Emote", description = config.prefix + "emote \n\nEmote command.", color = discord.Color.blue())
         await ctx.send(embed = em)
         
     @help.command(name="image")
     async def _image(self, ctx):
-        em = discord.Embed(title = "Fun: image", description = config.prefix + "image <message to search up> \n\nSearches an image up on the internet and sends it on Discord.", color = discord.Color.blue())
+        em = discord.Embed(title = "Fun: Image", description = config.prefix + "image <image to search up> \n\nSearches an image up on the internet and sends it on Discord.", color = discord.Color.blue())
         await ctx.send(embed = em)
 
     # Settings commands
