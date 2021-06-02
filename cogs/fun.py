@@ -3,44 +3,67 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import discord
-from discord import embeds
-from discord.ext import commands
+
+###### SORTED IMPORTS FOR CLEANER LOOK ######
+
+import bot
 import psutil
 import config
-import bot
 import random
+import aiohttp
+import discord  # removed "from discord import embeds", doesn't do anything
 import requests
-from bs4 import BeautifulSoup 
+from bs4 import BeautifulSoup
+from discord.ext import commands
 
-def getdata(url): 
-    r = requests.get(url) 
-    return r.text
+##############################################
+
+"""
+requests and urllib are blocking. Do not use these libraries within your asynchronous code. 
+(http://discordpy.readthedocs.io/en/latest/faq.html#what-does-blocking-mean)
+
+discord.py uses aiohttp, so it should already be installed.
+"""
+
+def getdata(url):  # switch from requests module to aiohttp (see above for reason)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            r = await response.text()  
+    return r
 
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    async def add(self, ctx, left: int, right: int):
-        """Adds two numbers together."""
-        em = discord.Embed(title = left + right, color = discord.Color.blue())
+    async def add(self, ctx, *integers = None): # creates a list of input (I haven't typecasted to (int) due to multitude of reasons)
+        """Adds multiple numbers together."""
+        if not integers:
+            return await ctx.send("Provide at least two or more numbers!")
+        if len(integers) == 1:
+            return await ctx.send("Provide at least two or more numbers!")
+        
+        new_list = [] # initializing new list
+        for number in integers: # iterating over the original list of numbers
+        try:
+           new_number = float(number) # conver the output to integer
+           new_list.append([new_number, str(number)]) # append the converted string along with the string as a list
+        except (TypeError, ValueError):
+           pass # if a string is passed, pass it
+        equation = " + ".join([num[1] for num in new_list]) #iterate over our new_list to get the string part of numbers and join them
+        total = sum([num[0] for num in new_list]) # iterate over the new_list and add all the appended float numbers together
+        em = discord.Embed(title = f"**__Input:__**\n```py\n{equation}\n```\n**__Output:__**\n```py\n{total}\n```", color = discord.Color.blue()) # send both the input and output
         await ctx.send(embed = em)
 
     
     @commands.command(description='For when you wanna settle the score some other way')
     async def choose(self, ctx, *choices: str):
-        """Chooses between multiple choices."""
-        if "@everyone" in choices:
+        """Chooses between multiple choices.""" # removed unnecessary lines of code
+        if "@everyone" in choices or "@here" in choices:
             em = discord.Embed(title = "Nice try, sadly that won't work here.", color = discord.Color.red())
-            await ctx.send(embed = em)
-        else:
-            if "@here" in choices:
-                em = discord.Embed(title = "Nice try, sadly that won't work here.", color = discord.Color.red())
-                await ctx.send(embed = em)
-            else:
-                em = discord.Embed(title = random.choice(choices), color = discord.Color.blue())
-                await ctx.send(embed = em)
+            return await ctx.send(embed = em)
+        em = discord.Embed(title = random.choice(choices), color = discord.Color.blue())
+        await ctx.send(embed = em) 
     
     @commands.command(description='#emotes')
     async def emote(self, ctx, emote : discord.Emoji = None):
@@ -57,7 +80,7 @@ class Fun(commands.Cog):
                 em.set_footer(text="Created on")
                 em.add_field(name="ID", value=emote.id)
                 em.add_field(name="Usage", value=f"`{emote}`")
-                em.add_field(name="URL", value=f"<{emote.url}>")
+                em.add_field(name="URL", value=f"[click here]({emote.url})") # masked links instead of actually sending the full link
                 await ctx.send(embed=em)
                 return
             except Exception:
