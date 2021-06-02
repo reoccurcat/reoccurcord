@@ -106,58 +106,50 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def image(self, ctx, *, query):
-        newquery = query.replace(" ", "+")
-        #await ctx.send(newquery)
-        images = []
-        htmldata = getdata(f"https://searx.prvcy.eu/search?q={str(newquery)}&categories=images")
-        #print(f"https://www.bing.com/images/search?q={str(newquery)}")
-        soup = BeautifulSoup(htmldata, 'html.parser') 
-        for item in soup.find_all('img'):
-            if "data:image" not in str(item):
-                if "/sa/" not in str(item):
-                    if "/rp/" not in str(item):
-                        try:
-                            replace1 = item['src'].replace("%3A", ":")
-                            replace2 = replace1.replace("%2F", "/")
+        query = query.replace(" ", "+")
+        if not os.path.exists('cache'):
+            os.makedirs('cache')
+        if os.path.isfile(f'cache/{query}.py'):
+            sys.path.insert(0, './cache')
+            #print("Using cache file:\n")
+            importedquery = importlib.import_module(f"{str(query)}")
+            images = importedquery.cache
+        else:
+            images = []
+            htmldata = getdata(f'https://searx.prvcy.eu/search?q={query}&categories=images')
+            #print(f"https://www.bing.com/images/search?q={str(newquery)}")
+            soup = BeautifulSoup(htmldata, 'html.parser')
+            for item in soup.find_all('img'):
+                if "explicit" not in str(item):
+                    try:
+                        replace1 = item['src'].replace("%3A", ":")
+                        replace2 = replace1.replace("%2F", "/")
+                        if "gstatic" in replace2:
+                            replace3 = replace2.replace("%3F", "?")
+                            replace4 = replace3.replace("%3D", "=")
+                            replace5 = replace4.replace("%26", "?")
+                            lefttext = replace5.split("?usqp")[0]
+                            replace6 = lefttext.replace("?usqp", "")
+                            righttext = replace6.split("/image_proxy?url=")[1]
+                            #print(righttext)
+                            images.append(righttext)
+                        else:
                             replace3 = replace2.replace("%3F", "/")
                             replace4 = replace3.replace("%3D", "/")
                             replace5 = replace4.replace("%26", "?")
-                            if "gstatic" in replace5:
-                                replace6 = replace5.replace("images/", "images?")
-                                replace7 = replace6.replace("q/", "q=")
-                                lefttext = replace7.split("?usqp/")[0]
-                                replace8 = lefttext.replace("?usqp/", "")
-                                righttext = replace8.split("/image_proxy?url=")[1]
-                                print(righttext)
-                                images.append(righttext)
-                            else:
-                                righttext = replace5.split("/image_proxy?url=")[1]
-                                print(righttext)
-                                images.append(righttext)
-                        except:
-                            pass
-        #for url in images:
-        #    if "&c=" in url:
-        #        right_text = url.split("&c=")[1]
-        #        newtext = f"&c={right_text}"
-        #        print(f"Right text is {newtext}")
-        #        sep = '?w'
-        #        stripped = url.split(sep, 1)[0]
-        #        stripped += newtext
-        #        newimages = []
-                #newimages.append(stripped)
-        #        print(stripped)
-        #        newimages.append(stripped) 
-                #if stripped != f"https://tse1.mm.bing.net/th":
-                #    if stripped != f"https://tse2.mm.bing.net/th":
-                #        if stripped != f"https://tse3.mm.bing.net/th":
-                #            if stripped != f"https://tse4.mm.bing.net/th":
-                #                print(stripped)
-                #                newimages.append(stripped)                           
+                            righttext = replace5.split("/image_proxy?url=")[1]
+                            #print(righttext)
+                            images.append(righttext)
+                        f = open(f"cache/{query}.py", "w")
+                        f.write(f"cache = {images}")
+                        f.close()
+                    except Exception as e:
+                        #print(e)
+                        pass                        
         printimage = random.choice(images)
         await ctx.send(str(printimage))
 
-        
+
     @commands.command()
     async def listcache(self, ctx):
         try:
@@ -187,6 +179,5 @@ class Fun(commands.Cog):
                 em = discord.Embed(title="No cache file found.", description=f"There was no cache file found at `./cogs/{clear}.py`.", color=discord.Color.red())
                 await ctx.send(embed=em)
 
-        
 def setup(bot):
     bot.add_cog(Fun(bot))

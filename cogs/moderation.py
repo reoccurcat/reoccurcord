@@ -38,6 +38,8 @@ class Moderation(commands.Cog):
     async def purge(self, ctx, amount=10):
         """Purge messages, default amount is 10."""
         await ctx.channel.purge(limit=amount+1)
+        em = discord.Embed(title = "Successfully purged " + str(amount) + " message(s).", color = discord.Color.blue())
+        await ctx.send(embed = em)
 
 
     @commands.command()
