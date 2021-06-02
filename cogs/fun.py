@@ -37,22 +37,21 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def add(self, ctx, *, integers = None): # creates a list of input (I haven't typecasted to (int) due to multitude of reasons)
+    async def add(self, ctx, *integers): # creates a list of input (I haven't typecasted to (int) due to multitude of reasons)
         """Adds multiple numbers together."""
-        if not integers:
-            return await ctx.send("Provide at least two or more numbers!")
-        if len(integers) == 1:
+        if len(integers) <= 1:
             return await ctx.send("Provide at least two or more numbers!")
         
         new_list = [] # initializing new list
         for number in integers: # iterating over the original list of numbers
             try:
-                new_number = float(number) # conver the output to integer
-                new_list.append([new_number, str(number)]) # append the converted string along with the string as a list
+               new_number = float(number) # conver the output to integer
+               new_list.append([new_number, str(number)])
+               continue # append the converted string along with the string as a list
             except (TypeError, ValueError):
-                pass # if a string is passed, pass it
-            equation = " + ".join([num[1] for num in new_list]) #iterate over our new_list to get the string part of numbers and join them
-            total = sum([num[0] for num in new_list]) # iterate over the new_list and add all the appended float numbers together
+               continue # if a string is passed, pass it
+        equation = " + ".join([num[1] for num in new_list]) #iterate over our new_list to get the string part of numbers and join them
+        total = sum([num[0] for num in new_list]) # iterate over the new_list and add all the appended float numbers together
         em = discord.Embed(title = f"**__Input:__**\n```py\n{equation}\n```\n**__Output:__**\n```py\n{total}\n```", color = discord.Color.blue()) # send both the input and output
         await ctx.send(embed = em)
 
