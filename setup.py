@@ -118,7 +118,7 @@ def badwordWrite() :
 def blacklistWrite() :
     print("Please put in blacklisted users that can't use the bot.\nIf you don't want this feature just hit enter on this prompt and type 's' when it asks if what you inputted is correct.\nThe format is ")
     print('["blacklisteduser1", "blacklisteduser2", "blacklisteduser3"]')
-    badwords = input("Enter the bad words (make sure to use the format): ")
+    blacklist = input("Enter the bad words (make sure to use the format): ")
     verificationFour = input("Is this correct? (y/n/s): '" + blacklist + "'")
     if verificationFour == "y":
         print("Writing...")
@@ -173,6 +173,64 @@ def dateformatWrite() :
         print("Invalid response, please rerun the script.")
         exit()
 
+def firstwebhookwrite() :
+    print("Please put in the webhook URL for sending information messages to.\n")
+    print("If you don't want this feature, just put 's' in when it asks if it is correct.")
+    webhook = input("Enter the webhook URL:")
+    verificationFour = input("Is this correct? (y/n/s): '" + webhook + "'")
+    if verificationFour == "y":
+        print("Writing...")
+        config = open('config.py', 'a')
+        writePrefixTemplate = "infowebhook = " + str(webhook) + "\n"
+        config.write(writePrefixTemplate)
+        config.close()
+        print("Written!")
+        print()
+    elif verificationFour == "n":
+        print("Please rerun the file and input the webhook to use for information.")
+        exit()
+    elif verificationFour == "s":
+        print("Writing...")
+        config = open('config.py', 'a')
+        writePrefixTemplate = "infowebhook = ''\n"
+        config.write(writePrefixTemplate)
+        config.close()
+        print("Written!")
+        print()
+        print("You have chosen not to input an info webhook. You may add them by editing the config.py file later.")
+    elif verificationFour != "n" or "y" or "s":
+        print("Invalid response, please rerun the script.")
+        exit()
+
+def firstwebhookwrite() :
+    print("Please put in the webhook URL for sending admin messages to.\n")
+    print("If you don't want this feature, just put 's' in when it asks if it is correct.")
+    webhook = input("Enter the webhook URL:")
+    verificationFour = input("Is this correct? (y/n/s): '" + webhook + "'")
+    if verificationFour == "y":
+        print("Writing...")
+        config = open('config.py', 'a')
+        writePrefixTemplate = "adminwebhook = " + str(webhook) + "\n"
+        config.write(writePrefixTemplate)
+        config.close()
+        print("Written!")
+        print()
+    elif verificationFour == "n":
+        print("Please rerun the file and input the webhook to use for information.")
+        exit()
+    elif verificationFour == "s":
+        print("Writing...")
+        config = open('config.py', 'a')
+        writePrefixTemplate = "adminwebhook = ''\n"
+        config.write(writePrefixTemplate)
+        config.close()
+        print("Written!")
+        print()
+        print("You have chosen not to input an info webhook. You may add them by editing the config.py file later.")
+    elif verificationFour != "n" or "y" or "s":
+        print("Invalid response, please rerun the script.")
+        exit()
+
 if os.path.exists("config.py"):
     prompt = input("Existing config.py found. Should I delete it? (y/n)")
     if prompt == "y":
@@ -194,6 +252,7 @@ vtapiWrite()
 badwordWrite()
 dateformatWrite()
 blacklistWrite()
+firstwebhookwrite()
 
 config = open('config.py', 'a')
 config.write("latest_version = 'unknown'")
@@ -202,3 +261,4 @@ print("Your configuration file should be written now!")
 print("To start your bot, run 'python3 start.py'")
 print("Have a nice day! :)")
 exit()
+

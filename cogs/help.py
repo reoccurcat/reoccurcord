@@ -27,7 +27,7 @@ class Help(commands.Cog):
             em.add_field(name = "VirusTotal", value = "scanurl, checkhash")
             em.add_field(name = "Update", value = "updatecheck, updatebot, updatecogs")
             em.add_field(name = "Admin", value = "getchannels, getinvite, loadcog, lockdownbot, reloadcog, restartbot, servers, shutdownbot, unloadcog")
-            em.add_field(name = "Help", value = "help - Shows this message")
+            em.add_field(name = "Help", value = "help, changelog")
             if config.latest_version > globalconfig.version:
                 em.add_field(name = "Notice", value = "This bot has an available update that will update it from version `" + globalconfig.version + "` to version `" + config.latest_version + "`. Please use `" + config.prefix + "updatecheck` for more details.")
             elif config.latest_version < globalconfig.version:
@@ -247,7 +247,6 @@ class Help(commands.Cog):
     async def _getinvite(self, ctx):
         em = discord.Embed(title = "Owner: GetInvite", description = config.prefix + "getinvite <serverid> <channel>\n\nGenerates an invite for the server provided. A channel name can optionally be provided and it defauts to `general`. Owner only.", color = discord.Color.blue())
         await ctx.send(embed = em)
-
 
 def setup(bot):
     bot.add_cog(Help(bot))

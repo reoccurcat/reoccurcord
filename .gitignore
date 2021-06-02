@@ -143,3 +143,6 @@ config.py
 
 # VSCode Settings
 .vscode/
+
+# Cache
+cache/
