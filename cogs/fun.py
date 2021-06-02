@@ -107,20 +107,42 @@ class Fun(commands.Cog):
         def check(reaction, user):
             return msg == reaction.message
         usersreacted = []
-        usersreacted.append(self.bot.user.name)
+        donotaccept = self.bot.user.name
         while True:
             try:
                 reaction, user = await self.bot.wait_for('reaction_add', check=check, timeout=30)
             except asyncio.TimeoutError:
                 new_msg = await ctx.fetch_message(msg.id)
                 number = len([x for x in await new_msg.reactions[0].users().flatten() if not x.bot])
-                return await ctx.send(f"A total of {number} people paid their respects to **{message2}**.")
+                em3 = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
+                try:
+                    multipleusers = f"{', '.join(usersreacted)}"
+                except:
+                    multipleusers = f"{user.name}"
+                em3.add_field(name="Users who paid respects", value=f"{multipleusers}\n**A total of {number} people paid their respects.**")
+                return await msg.edit(embed=em3)
+                #return await ctx.send(f"A total of {number} people paid their respects to **{message2}**.")
             else:
+                #try:
+                #    for user in usersreacted:
+                #        emoji = self.bot.emoji
+                #        await msg.remove_reaction("🇫", user.id)
+                #except discord.Forbidden:
+                #    pass
                 if str(reaction.emoji) == "🇫":
                     if user.name in usersreacted:
                         continue
-                    await ctx.send(f"**{user.name}** has paid their respects.")
+                    if user.name == donotaccept:
+                        continue
                     usersreacted.append(user.name)
+                    #await ctx.send(f"**{user.name}** has paid their respects.")
+                    em2 = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
+                    try:
+                        multipleusers = f"{', '.join(usersreacted)}"
+                    except:
+                        multipleusers = f"{user.name}"
+                    em2.add_field(name="Users who paid respects", value=f"{multipleusers}")
+                    await msg.edit(embed=em2)
 
     @commands.command()
     async def image(self, ctx, *, query):
