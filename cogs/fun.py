@@ -107,6 +107,7 @@ class Fun(commands.Cog):
         def check(reaction, user):
             return msg == reaction.message
         usersreacted = []
+        usersreacted.append(self.bot.user.name)
         while True:
             try:
                 reaction, user = await self.bot.wait_for('reaction_add', check=check, timeout=30)
