@@ -29,7 +29,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     # Changes bot status to the default status when the bot starts up
-    await bot.change_presence(activity=discord.Game(name='v' + globalconfig.version + " | " + config.prefix + "help"))
+    await bot.change_presence(activity=discord.Game(name='v' + globalconfig.version + " | " + config.prefix[0] + "help"))
     try:
         async with aiohttp.ClientSession() as session:
             webhook = discord.Webhook.from_url(config.infowebhook, adapter=discord.AsyncWebhookAdapter(session))

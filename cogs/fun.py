@@ -232,8 +232,65 @@ class Fun(commands.Cog):
     async def on_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             seconds = round(error.retry_after, 2)
-            return await ctx.send("You are being rated-limited, please try again in {seconds} seconds!")
+            return await ctx.send(f"You are being rated-limited, please try again in {seconds} seconds!")
     
+    @commands.command()
+    async def websitepeek(self, ctx, *, url: str):
+        async with ctx.typing(), aiohttp.ClientSession() as session:
+            screener = "http://magmachain.herokuapp.com/api/v1"
+            async with session.post(screener, headers=dict(website=url)) as r:
+                website = (await r.json())["snapshot"]
+                await ctx.send(embed=discord.Embed(color=discord.Color.blue()).set_image(url=website))
+
+    @commands.command()
+    async def websearch(self, ctx, *, query):
+        query = query.replace(" ", "+")
+        if not os.path.exists('cache'):
+            os.makedirs('cache')
+        if os.path.isfile(f'cache/{query}_web.py'):
+            sys.path.insert(0, './cache')
+            #print("Using cache file:\n")
+            importedquery = importlib.import_module(f"{str(query)}_web")
+            allresults = importedquery.cache
+        else:
+            htmldata = await getdata(f'https://searx.prvcy.eu/search?q={query}')
+            #print(f"https://www.bing.com/images/search?q={str(newquery)}")
+            soup = BeautifulSoup(htmldata, 'html.parser')
+            allresults = []
+            for item in soup.find_all("a"):
+                #print(item)
+                item = str(item).split('" rel=')[0]
+                try:
+                    item = str(item).split('href="')[1]
+                    if item[0] == "/":
+                        continue
+                    if "</a>" in item:
+                        continue
+                    if str(query) not in item:
+                        continue
+                    if "archive" in item:
+                        continue
+                    try:
+                        item = item.split("?")[0]
+                    except:
+                        pass
+                    allresults.append(item)
+                except Exception as e:
+                    print(e)
+                    pass
+            for item in soup.find_all("aria-labelledby"):
+                print(item)
+            if '"' in query:
+                query = query.replace('"', "'")
+            f = open(f"cache/{query}_web.py", "w")
+            f.write(f"cache = {allresults}")
+            f.close()
+        em = discord.Embed(title="Web Search Results", description=f"FreeDiscord found **{len(allresults)}** results.")
+        try:
+            em.add_field(name="URLs Returned", value="\n".join(allresults))
+        except Exception:
+            em.add_field(name="Error", value="Too many urls fetched (dev is working on a fix)")
+        await ctx.send(embed=em)
 
 def setup(bot):
     bot.add_cog(Fun(bot))
