@@ -57,25 +57,6 @@ async def on_message(msg):
             if newcontent.__contains__(config.prefix + str(command)):
                 em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
                 await msg.channel.send(embed = em, delete_after=5.0)
-                return
-    #try:
-    #    for word in config.bad_words:
-    #        if word in msg.content.lower():
-    #            try:
-    #                async with aiohttp.ClientSession() as session:
-    #                    user = msg.author
-    #                    webhook = discord.Webhook.from_url(config.adminwebhook, adapter=discord.AsyncWebhookAdapter(session))
-    #                    e = discord.Embed(title="User Used Blacklisted Word!", color=discord.Color.red())
-    #                    e.set_author(name=str(user), icon_url=user.avatar_url)
-    #                    e.add_field(name="Word Blocked", value=f"||{msg.content}||")
-    #                    #e.add_field(name="Message Blocked Time", value=str(datetime.now()))
-    #                    await webhook.send(embed=e)
-    #            except:
-    #                pass
-    #            await msg.delete()
-    #            await msg.channel.send("Please don't use that word", delete_after=5.0)
-    #        else:
-    #            await bot.process_commands(msg)
     else:
         await bot.process_commands(msg)
 
@@ -93,6 +74,10 @@ async def on_command_error(ctx, error):
         em = discord.Embed(title = "Error", description = "Command not found", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
         await ctx.send(embed = em)
+    elif isinstance(error, commands.CommandOnCooldown):
+        em = discord.Embed(title = "Cooldown Error", color = discord.Color.red())
+        em.add_field(name = "Error Details", value = f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds.')
+        await ctx.send(embed=em)
     else:
         em = discord.Embed(title = "An internal error occurred.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")

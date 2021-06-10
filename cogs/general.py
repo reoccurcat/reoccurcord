@@ -27,7 +27,7 @@ class General(commands.Cog):
         em.add_field(name = "Terms of Service", value = "[ToS](https://fd.reoccur.tech/tos)")
         em.add_field(name = "Privacy Policy", value = "[Privacy](https://fd.reoccur.tech/privacy)")
         serverNumber = len(self.bot.guilds) # self.bot.guilds is a list object itself
-        em.add_field(name = "Number of servers this instance is in", value = serverNumber)
+        em.add_field(name = "Bot Server Count", value = serverNumber)
         cpuUsage = psutil.cpu_percent()
         em.add_field(name="Host CPU Usage", value=f"{cpuUsage}%")
         memUsage = psutil.virtual_memory().percent
