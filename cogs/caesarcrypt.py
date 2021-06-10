@@ -7,6 +7,7 @@ import discord
 import time
 import config
 from discord.ext import commands
+from cryptography.fernet import Fernet
 
 rounds_error = "No rounds given, syntax: command + rounds + message."
 
@@ -15,61 +16,29 @@ class Caesarcrypt(commands.Cog):
         self.bot = bot
 
     @commands.command(description="Twisted your message with caesarcrypt. @bot rounds(numbers) message")
-    async def twisted_msg(self, ctx, rounds = None, *, message: str):
+    async def twisted_msg(self, ctx):
         """Encrypt a message."""
-        await ctx.message.delete()
-        if rounds is None:
-            em = discord.Embed(title = "Wrong syntax.", description = rounds_error, color = discord.Color.red())
-            return await ctx.send(embed = em)
-        try:
-            rounds = int(rounds)
-        except Exception:
-            em = discord.Embed(title = "Wrong syntax.", description = rounds_error, color = discord.Color.red())
-            return await ctx.send(embed = em)
-        encrypt = ""
-        message = str(message)
-        for char in message:
-            if not char.isalpha():
-                encrypt = encrypt + char
-            elif char.isupper():
-                # for uppercase Z
-                encrypt = encrypt + chr((ord(char) + rounds - 65) % 26 + 65)
-            else:
-                # for lowercase z
-                encrypt = encrypt + chr((ord(char) + rounds - 97) % 26 + 97)
-        em = discord.Embed(title = 'Your encrypted message is: {}'.format(encrypt), color = discord.Color.blue())
-        await ctx.send(embed = em)
+        message = ctx.message.content.split(" ")
+        message = message.remove(message[0])
+        message = "".join(message)
 
+        key = Fernet.generate_key()
+        encrypted = Fernet(key).encrypt(message)
+
+        await ctx.send(embed=discord.Embed(title="Encrypted message", description=f"{encrypted}\n\nYour decryption key is {str(key)}"))
 
 
     @commands.command(description="Untwisted the message with caesarcrypt. @bot rounds(numbers) message")
-    async def untwisted_msg(self, ctx, rounds: int, *, message: str):
+    async def untwisted_msg(self, ctx):
         """Decrypt a message."""
-        await ctx.message.delete()
-        if rounds is None:
-            em = discord.Embed(title = "Wrong syntax.", description = rounds_error, color = discord.Color.red())
-            return await ctx.send(embed = em)
-        try:
-            rounds = int(rounds)
-        except Exception:
-            em = discord.Embed(title = "Wrong syntax.", description = rounds_error, color = discord.Color.red())
-            return await ctx.send(embed = em)
-        decrypt = ""
-        message = str(message)
-        for char in message:
-            if not char.isalpha():
-                decrypt = decrypt + char
-            elif char.isupper():
-                # for uppercase Z
-                decrypt = decrypt + chr((ord(char) - rounds - 65) % 26 + 65)
-            else:
-                # for lowercase z
-                decrypt = decrypt + chr((ord(char) - rounds - 97) % 26 + 97)
+        message = ctx.message.content.split(" ")
+        message = message.remove(message[0])
+        key = bytes(message[0], "utf-8")
+        message = message.remove(message[0])
 
-        em = discord.Embed(title = 'Your decrypted message is: {}'.format(decrypt), color = discord.Color.blue())
-        await ctx.send(embed = em)
+        decrypted = Fernet(key).decrypt("".join(message))
 
-
+        await ctx.send(embed=discord.Embed(title="Decrypted message", description={decrypted}))
 
 def setup(bot):
     bot.add_cog(Caesarcrypt(bot))
