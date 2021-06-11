@@ -23,7 +23,7 @@ class Help(commands.Cog):
             em.add_field(name = "Settings", value = "botstatus, botstatusrepeat")
             em.add_field(name = "Utils", value = "avatar, joined, ping, quickpoll, uptime, userinfo")
             em.add_field(name = "Fun", value = "add, choose, f, emote, image")
-            em.add_field(name = "Caesarcrypt", value = "twisted_msg, untwisted_msg")
+            em.add_field(name = "Caesarcrypt", value = "encryptmsg, decryptmsg")
             em.add_field(name = "VirusTotal", value = "scanurl, checkhash")
             em.add_field(name = "Update", value = "updatecheck, updatebot, updatecogs")
             em.add_field(name = "Admin", value = "getchannels, getinvite, loadcog, lockdownbot, reloadcog, restartbot, servers, shutdownbot, unloadcog")
@@ -176,14 +176,14 @@ class Help(commands.Cog):
         await ctx.send(embed = em)
 
     # Caesar commands
-    @help.command(name="twisted_msg")
-    async def _encrypt(self, ctx):
-        em = discord.Embed(title = "Caesarcrypt: Twisted Your Message", description = config.prefix + "twisted_msg <rounds> <message> \n\nTwisted a message.", color = discord.Color.blue())
+    @help.command(name="encryptmsg")
+    async def _encryptmsg(self, ctx):
+        em = discord.Embed(title = "Encrypt a message", description = config.prefix + "encryptmsg <message>", color = discord.Color.blue())
         await ctx.send(embed = em)
 
-    @help.command(name="untwisted_msg")
-    async def _decrypt(self, ctx):
-        em = discord.Embed(title = "Caesarcrypt: Untwisted Your Message", description = config.prefix + "untwisted_msg <rounds> <message> \n\nUntwisted a message.", color = discord.Color.blue())
+    @help.command(name="decryptmsg")
+    async def _decryptmsg(self, ctx):
+        em = discord.Embed(title = "Decrypt an encrypted message", description = config.prefix + "decryptmsg <key> <message>", color = discord.Color.blue())
         await ctx.send(embed = em)
 
     # Update commands

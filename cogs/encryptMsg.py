@@ -20,7 +20,7 @@ class Caesarcrypt(commands.Cog):
         """Encrypt a message."""
         message = ctx.message.content.split(" ")
         message = message.remove(message[0])
-        message = "".join(message)
+        message = bytes("".join(message), "utf-8")
 
         key = Fernet.generate_key()
         encrypted = Fernet(key).encrypt(message)
@@ -36,7 +36,7 @@ class Caesarcrypt(commands.Cog):
         key = bytes(message[0], "utf-8")
         message = message.remove(message[0])
 
-        decrypted = Fernet(key).decrypt("".join(message))
+        decrypted = Fernet(key).decrypt(bytes("".join(message), "utf-8"))
 
         await ctx.send(embed=discord.Embed(title="Decrypted message", description={decrypted}))
 
