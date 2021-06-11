@@ -146,3 +146,6 @@ config.py
 
 # Cache
 cache/
+
+# Test Files
+tests/

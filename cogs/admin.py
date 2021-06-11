@@ -10,6 +10,11 @@ import globalconfig
 import importlib
 import subprocess
 import os
+from git import Repo
+import shutil
+import sys
+from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
+from shutil import copyfile
 
 class Admin(commands.Cog):
     def __init__(self, bot):
@@ -161,48 +166,48 @@ class Admin(commands.Cog):
             em = discord.Embed(title = "This command is for the bot owner only.", color = discord.Color.red())
             await ctx.send(embed = em)
 
-    #@commands.command()
-    #async def blacklist(self, ctx, option, userID):
-        #if str(ctx.message.author.id) == config.ownerID:
-        #    if bool(ctx.guild) == True:
-        #        await ctx.message.delete()
-        #    if str(userID).isdigit() == True:
-        #        if str(option) == "remove":
-        #            oldlist = config.blacklist
-        #            oldlist.remove(str(userID))
-        #            importlib.reload(config)
-        #            em = discord.Embed(title = "Success", description = f"Successfully removed <@!{str(userID)}> from the blacklist.")
-        #            await ctx.send(embed = em, delete_after=5.0)
-        #        elif str(option) == "add":
-        #            importlib.reload(config)
-        #            with open('config.py', 'r') as file1:
-        #                filedata = file1.read()
-        #            oldlist = config.blacklist
-        #            print(oldlist)
-        #            oldlist.append(str(userID))
-        #            with open('tempconfig.py', 'w') as file:
-        #                file.write(str(oldlist))
-        #            with open('tempconfig.py', 'r') as file2:
-        #                filedata1 = file2.read()
-        #            print(str(config.blacklist))
-        #            print(str(filedata1))
-        #            filedata2 = filedata.replace(str(config.blacklist), str(filedata1))
-        #            with open('tempconfig2.py', 'w') as file3:
-        #                file3.write(filedata2)
-        #        elif str(option) == "list":
-        #            em = discord.Embed(title = "Blacklisted Users")
-        #            em.add_field(name = "User IDs", value = '\n'.join(list(config.blacklist)))
-        #            #em.add_field(name = "User Mentions", value = "<@!" + *config.blacklist, sep = "\n") + ">")
-        #            await ctx.send(embed = em, delete_after=10.0)
-        #        else:
-        #            em = discord.Embed(title = "Error", description = f"`{str(option)}` doesn't seem to be a valid option. The valid options are `add` and `remove`.")
-        #            await ctx.send(embed = em, delete_after=5.0)
-        #    else:
-        #        em = discord.Embed(title = "Error", description = f"`{str(userID)}` doesn't look like a User ID.")
-        #        await ctx.send(embed = em, delete_after=5.0)
-        #else:
-        #    em = discord.Embed(title = "This command is for the bot owner only.", delete_after=5.0)
-        #    await ctx.send(embed = em)
+    @commands.command()
+    async def blacklist(self, ctx, option, userID):
+        if str(ctx.message.author.id) == config.ownerID:
+            if bool(ctx.guild) == True:
+                await ctx.message.delete()
+            if str(userID).isdigit() == True:
+                if str(option) == "remove":
+                    oldlist = config.blacklist
+                    oldlist.remove(str(userID))
+                    importlib.reload(config)
+                    em = discord.Embed(title = "Success", description = f"Successfully removed <@!{str(userID)}> from the blacklist.")
+                    await ctx.send(embed = em, delete_after=5.0)
+                elif str(option) == "add":
+                    importlib.reload(config)
+                    with open('config.py', 'r') as file1:
+                        filedata = file1.read()
+                    oldlist = config.blacklist
+                    print(oldlist)
+                    oldlist.append(str(userID))
+                    with open('tempconfig.py', 'w') as file:
+                        file.write(str(oldlist))
+                    with open('tempconfig.py', 'r') as file2:
+                        filedata1 = file2.read()
+                    print(str(config.blacklist))
+                    print(str(filedata1))
+                    filedata2 = filedata.replace(str(config.blacklist), str(filedata1))
+                    with open('tempconfig2.py', 'w') as file3:
+                        file3.write(filedata2)
+                elif str(option) == "list":
+                    em = discord.Embed(title = "Blacklisted Users")
+                    em.add_field(name = "User IDs", value = '\n'.join(list(config.blacklist)))
+                    #em.add_field(name = "User Mentions", value = "<@!" + *config.blacklist, sep = "\n") + ">")
+                    await ctx.send(embed = em, delete_after=10.0)
+                else:
+                    em = discord.Embed(title = "Error", description = f"`{str(option)}` doesn't seem to be a valid option. The valid options are `add` and `remove`.")
+                    await ctx.send(embed = em, delete_after=5.0)
+            else:
+                em = discord.Embed(title = "Error", description = f"`{str(userID)}` doesn't look like a User ID.")
+                await ctx.send(embed = em, delete_after=5.0)
+        else:
+            em = discord.Embed(title = "This command is for the bot owner only.", delete_after=5.0)
+            await ctx.send(embed = em)
 
 def setup(bot):
     bot.add_cog(Admin(bot))

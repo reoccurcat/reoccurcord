@@ -55,7 +55,7 @@ class Settings(commands.Cog):
                 await asyncio.sleep(10)
                 await self.bot.change_presence(activity=discord.Game("Publishing Releases..."))
                 await asyncio.sleep(10)
-                await self.bot.change_presence(activity=discord.Game("v0.6 | " + config.prefix + "help"))
+                await self.bot.change_presence(activity=discord.Game("v0.6 | " + config.prefix[0] + "help"))
                 await asyncio.sleep(10)
         else:
             em = discord.Embed(title = "This command is for the bot owner only!")
