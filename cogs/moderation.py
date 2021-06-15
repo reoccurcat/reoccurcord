@@ -4,12 +4,12 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
-import time
 import os
 import random
 import asyncio
-import config
 import string
+#import config
+#import time
 from discord.ext import commands
 from discord.utils import get
 

@@ -4,17 +4,18 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
-from discord.ext import commands
-from git import Repo
 import os
 import shutil
 import sys
 import subprocess
-from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
-from shutil import copyfile
 import config
 import globalconfig
 import importlib
+from shutil import copyfile
+from discord.ext import commands
+from git import Repo
+#from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
+
 
 class Update(commands.Cog):
     def __init__(self, bot):
@@ -57,7 +58,7 @@ class Update(commands.Cog):
             except os.error:
                 embed = discord.Embed(title = "Error in removing `" + tmpdir + "/updatecheck` folder", description = 'The `' + tmpdir + '/updatecheck` folder was not able to be removed, probably due to a permissions issue.', color = discord.Color.red())
                 await ctx.send(embed=embed) 
-            import updateconfig
+            updateconfig = importlib.import_module("updateconfig")
             if updateconfig.version > globalconfig.version:
                 new_embed = discord.Embed(title = "Checking for updates...", description = "Checking for updates succeeded!", color = discord.Color.green())
                 new_embed.add_field(name = "Upgrade found!", value = "It is recommended to update to version " + updateconfig.version + " from version " + globalconfig.version + " for the latest bug fixes and feature improvements.")

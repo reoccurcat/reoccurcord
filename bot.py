@@ -7,9 +7,9 @@ import os
 import config
 import discord
 import aiohttp
-import datetime
-import requests
 import globalconfig
+#import datetime
+#import requests
 from discord.ext import commands
 
 intents = discord.Intents.default()

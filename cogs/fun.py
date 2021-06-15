@@ -6,21 +6,21 @@
 
 ###### SORTED IMPORTS FOR CLEANER LOOK ######
 
-import bot
-import psutil
 import config
 import random
 import aiohttp
 import discord  # removed "from discord import embeds", doesn't do anything
 import requests
-import time
 import asyncio
-import concurrent.futures 
 import os
 import importlib
 import sys
 import shutil
 import json
+#import time
+#import concurrent.futures
+#import bot
+#import psutil 
 from bs4 import BeautifulSoup
 from discord.ext import commands
 
@@ -227,7 +227,7 @@ class Fun(commands.Cog):
         embed=discord.Embed(title=f'{title}', colour=0xaf85ff, url=f"https://reddit.com/{post['permalink']}")
         embed.set_footer(text=f"{post['upvote_ratio'] * 100:,}% Upvotes | Posted to r/{post['subreddit']}")
         embed.set_image(url=post['url'])
-        await ctx.reply(embed=em, mention_author=False)
+        await ctx.reply(embed=embed, mention_author=False)
         
     @reddit.error
     async def on_error(self, ctx, error):

@@ -4,13 +4,13 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
-import time
-import json
-import base64
 import requests
 import asyncio
-from discord.ext import commands
 import config
+from discord.ext import commands
+#import time
+#import json
+#import base64
 
 apikey = config.virustotal_api
 iconurl = "https://freediscord.ga/vt_logo.png"

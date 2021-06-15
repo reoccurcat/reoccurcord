@@ -4,12 +4,12 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import ctypes
 import sys
 import subprocess
 import config
 import globalconfig
 import shutil
+#import ctypes
 from git import Repo
 from shutil import copyfile
 

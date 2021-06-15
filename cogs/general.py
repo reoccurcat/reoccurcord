@@ -7,10 +7,10 @@ import discord
 from discord.ext import commands
 import psutil
 import config
-import bot
 import datetime
 import time
 import os
+#import bot
 start_time = time.time()
 
 class General(commands.Cog):

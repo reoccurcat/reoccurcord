@@ -4,9 +4,9 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
-import time
-import config
 from discord.ext import commands
+#import time
+#import config
 
 rounds_error = "No rounds given, syntax: command + rounds + message."
 

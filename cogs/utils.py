@@ -11,8 +11,10 @@ import time
 import os
 import sys
 import asyncio
+
 sys.path.append(os.path.realpath('.'))
 start_time = time.time()
+
 class Utils(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -105,7 +107,7 @@ class Utils(commands.Cog):
     @commands.command()
     async def quickpoll(self, ctx, *, poll): # umm why not just use (*, poll) instead of (*poll)
         await ctx.message.delete()
-        em = discord.Embed(title = f'{args}')
+        em = discord.Embed(title = f'{poll}')
         msg = await ctx.send(embed = em)
         await msg.add_reaction('👍')
         await msg.add_reaction('👎')

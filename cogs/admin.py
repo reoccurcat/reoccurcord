@@ -6,15 +6,15 @@
 import discord
 from discord.ext import commands
 import config
-import globalconfig
 import importlib
 import subprocess
 import os
-from git import Repo
-import shutil
-import sys
-from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
-from shutil import copyfile
+#from git import Repo
+#import globalconfig
+#import shutil
+#import sys
+#from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWUSR
+#from shutil import copyfile
 
 class Admin(commands.Cog):
     def __init__(self, bot):
