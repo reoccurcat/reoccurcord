@@ -171,12 +171,12 @@ class Utils(commands.Cog):
         '''Shows information about the bot instance'''
         em = discord.Embed(title = "About this instance", color = discord.Color.blue())
         em.add_field(name = "Instance name", value=f"{self.bot.user.name}#{self.bot.user.discriminator} ({self.bot.user.id})")
-        em.add_field(name = "Website", value = "[Reoccur Tech](https://fd.reoccur.tech)")
+        em.add_field(name = "Website", value = "[Reoccur Tech](https://rc.reoccur.tech)")
         em.add_field(name = "Project URL", value = "[Github Link](https://github.com/reoccurcat/reoccurcord/)")
         em.add_field(name = "Support server", value = "[Discord Server](https://discord.gg/BNhVjFyB3S)")
-        em.add_field(name = "Bot invite link", value = "[Invite Link](https://fd.reoccur.tech/invite)")
-        em.add_field(name = "Terms of Service", value = "[ToS](https://fd.reoccur.tech/tos)")
-        em.add_field(name = "Privacy Policy", value = "[Privacy](https://fd.reoccur.tech/privacy)")
+        em.add_field(name = "Bot invite link", value = "[Invite Link](https://rc.reoccur.tech/invite)")
+        em.add_field(name = "Terms of Service", value = "[ToS](https://rc.reoccur.tech/tos)")
+        em.add_field(name = "Privacy Policy", value = "[Privacy](https://rc.reoccur.tech/privacy)")
         serverNumber = len(self.bot.guilds) # self.bot.guilds is a list object itself
         em.add_field(name = "Bot Server Count", value = serverNumber)
         cpuUsage = psutil.cpu_percent()
@@ -190,7 +190,7 @@ class Utils(commands.Cog):
         difference = int(round(current_time - start_time))
         text = str(datetime.timedelta(seconds=difference))
         em.add_field(name="Uptime", value=text)
-        em.set_thumbnail(url="https://fd.reoccur.tech/icon.gif")
+        em.set_thumbnail(url="https://rc.reoccur.tech/assets/icon.gif")
         await ctx.reply(embed = em, mention_author=False)
 
     @commands.command()
