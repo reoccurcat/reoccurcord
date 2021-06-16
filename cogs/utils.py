@@ -4,16 +4,34 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
-from discord.ext import commands
 import config
 import datetime
 import time
 import os
 import sys
 import asyncio
+import psutil
+import requests
+from discord.ext import commands
 
 sys.path.append(os.path.realpath('.'))
 start_time = time.time()
+
+apikey = config.virustotal_api
+iconurl = "https://freediscord.ga/vt_logo.png"
+
+def vt_json_parsing(detections):
+    try:
+        detections = str(detections).split("last_analysis_stats")
+        detections = str(detections[1]).split('"')
+    except Exception:
+        return -1
+    for m in detections:
+        if 'malicious' in str(m) and any(d.isdigit() for d in m):
+            detections = m
+            detections = "".join(filter(str.isdigit, m))
+            break
+    return detections
 
 class Utils(commands.Cog):
     def __init__(self, bot):
@@ -25,7 +43,7 @@ class Utils(commands.Cog):
         Get the latency of the bot.
         '''
         em = discord.Embed(title = "Pong! `"f"{round(self.bot.latency*1000)} ms`.", color = discord.Color.blue())
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command()
@@ -38,7 +56,7 @@ class Utils(commands.Cog):
         icon_jpg = user.avatar_url_as(format='jpg')
         embed = discord.Embed(title=f"{user.name}'s Avatar", description=f'[PNG]({icon_png}) | [JPG]({icon_jpg}) | {icon_webp}', color= discord.Color.blue())
         embed.set_image(url=user.avatar_url)
-        await ctx.send(embed=embed) #send it in an embed with different types of formats of the image
+        await ctx.reply(embed=embed, mention_author=False) #send it in an embed with different types of formats of the image
 
     @commands.command()
     async def userinfo(self, ctx, user: discord.Member = None):
@@ -63,7 +81,7 @@ class Utils(commands.Cog):
         embed.add_field(name="Registered", value=user.created_at.strftime(date_format), inline=True)
         perm_string = ', '.join([str(p[0]).replace("_", " ").title() for p in user.guild_permissions if p[1]])
         embed.add_field(name="Guild permissions", value=perm_string, inline=False)
-        return await ctx.send(embed=embed)
+        return await ctx.reply(embed=embed, mention_author=False)
         
 
 
@@ -73,7 +91,7 @@ class Utils(commands.Cog):
         if not member:
             member = ctx.author
         em = discord.Embed(title = '{0.name} joined in {0.joined_at}'.format(member), color = discord.Color.blue())
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em, mention_author=False)
 
 
 
@@ -101,74 +119,157 @@ class Utils(commands.Cog):
         embed.add_field(name="Number of Members", value=memberCount, inline=True)
         embed.add_field(name="Number of Roles", value=str(role_count), inline=True)
 
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed, mention_author=False)
 
 
     @commands.command()
+    @commands.cooldown(1,30,commands.BucketType.user)
     async def quickpoll(self, ctx, *, poll): # umm why not just use (*, poll) instead of (*poll)
         await ctx.message.delete()
         em = discord.Embed(title = f'{poll}')
-        msg = await ctx.send(embed = em)
+        msg = await ctx.reply(embed = em, mention_author=False)
         await msg.add_reaction('👍')
         await msg.add_reaction('👎')
 
 
     @commands.command(pass_context=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def uptime(self, ctx):
+        """Gets the uptime of the bot"""
         current_time = time.time()
         difference = int(round(current_time - start_time))
         text = str(datetime.timedelta(seconds=difference))
         embed = discord.Embed(name="Uptime", value=text)
         try:
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed, mention_author=False)
         except discord.HTTPException:
-            await ctx.send("Current uptime: " + text)
+            await ctx.reply("Current uptime: " + text, mention_author=False)
 
     @commands.command()
+    @commands.cooldown(1,30,commands.BucketType.user)
     async def botstatus(self, ctx, *args):
-        """Sets the status of the bot. Owner only. 'botstatus' to reset"""
+        """Sets the status of the bot. Owner only. Use 'botstatus' to reset"""
         args = " ".join(args[:])
         if str(ctx.message.author.id) == config.ownerID:
             if args == '':
                 await self.bot.change_presence(activity=discord.Game(name=''))
 
                 em = discord.Embed(title = "Bot status successfully reset!", color = discord.Color.green())
-                await ctx.send(embed = em)
+                await ctx.reply(embed = em, mention_author=False)
             else:
                 await self.bot.change_presence(activity=discord.Game(name=args))
 
                 em = discord.Embed(title = "Bot status successfully changed to `" + args + "`!", color = discord.Color.green())
-                await ctx.send(embed = em)
+                await ctx.reply(embed = em, mention_author=False)
         else:
             em = discord.Embed(title = "This command is for the bot owner only.", color = discord.Color.red())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
+
+    @commands.command()
+    @commands.cooldown(1,10,commands.BucketType.user)
+    async def about(self, ctx):
+        '''Shows information about the bot instance'''
+        em = discord.Embed(title = "About this instance", color = discord.Color.blue())
+        em.add_field(name = "Instance name", value=f"{self.bot.user.name}#{self.bot.user.discriminator} ({self.bot.user.id})")
+        em.add_field(name = "Website", value = "[Reoccur Tech](https://fd.reoccur.tech)")
+        em.add_field(name = "Project URL", value = "[Github Link](https://github.com/reoccurcat/freediscord/)")
+        em.add_field(name = "Support server", value = "[Discord Server](https://discord.gg/BNhVjFyB3S)")
+        em.add_field(name = "Bot invite link", value = "[Invite Link](https://fd.reoccur.tech/invite)")
+        em.add_field(name = "Terms of Service", value = "[ToS](https://fd.reoccur.tech/tos)")
+        em.add_field(name = "Privacy Policy", value = "[Privacy](https://fd.reoccur.tech/privacy)")
+        serverNumber = len(self.bot.guilds) # self.bot.guilds is a list object itself
+        em.add_field(name = "Bot Server Count", value = serverNumber)
+        cpuUsage = psutil.cpu_percent()
+        em.add_field(name="Host CPU Usage", value=f"{cpuUsage}%")
+        memUsage = psutil.virtual_memory().percent
+        em.add_field(name="Host Memory Usage", value=f"{memUsage}%")
+        em.add_field(name = "Ping", value = "`"f"{round(self.bot.latency*1000)} ms`")
+        em.add_field(name="Prefix", value=f"`{config.prefix}`")
+        em.add_field(name="Bot Owner", value=f"<@!{config.ownerID}>")
+        current_time = time.time()
+        difference = int(round(current_time - start_time))
+        text = str(datetime.timedelta(seconds=difference))
+        em.add_field(name="Uptime", value=text)
+        em.set_thumbnail(url="https://fd.reoccur.tech/icon.gif")
+        await ctx.reply(embed = em, mention_author=False)
+
+    @commands.command()
+    @commands.cooldown(1,30,commands.BucketType.user)
+    async def scanhash(self, ctx, inputhash: str):
+        """Scans a hash using VirusTotal"""
+        await ctx.message.delete()
+        header = {'x-apikey': '{}'.format(apikey)}
+        vturl = "https://www.virustotal.com/api/v3/files/{}".format(inputhash)
+        response = requests.get(vturl, headers = header).json()
+        response = str(response).split(",")
+        parsed = vt_json_parsing(response)
+        if parsed == -1:
+            em = discord.Embed(title = "Something went wrong, could be the hash not in the VirusTotal database.", color = discord.Color.red())
+            await ctx.reply(embed = em, mention_author=False)
+            return
+        generated_link = "https://www.virustotal.com/gui/file/{}/detection".format(inputhash)
+        if int(parsed) == 0 :
+            em = discord.Embed(title = "Detections: {}".format(parsed), color = discord.Color.green())
+        elif int(parsed) >= 1 :
+            em = discord.Embed(title = "Detections: {}".format(parsed), color = discord.Color.red())
+        em.set_author(name="VirusTotal", icon_url=iconurl)
+        em.add_field(name="Link:", value=generated_link)
+        await ctx.reply(embed = em, mention_author=False)
+        return
 
 
     @commands.command()
-    async def botstatusrepeat(self, ctx):
-        if str(ctx.message.author.id) == config.ownerID:
-            em = discord.Embed(title = "Status loop initiated.", color = discord.Color.blue())
-            await ctx.send(embed = em)
-
-            while True:
-                #Here is the template for setting changing FreeDiscord now playing status automatically:
-                #await self.bot.change_presence(activity=discord.Game("made by the FreeTechnologies team"))
-                #await asyncio.sleep(10)
-                await self.bot.change_presence(activity=discord.Game("Made by the FreeTechnologies team! | https://discord.gg/QhhUVy92ZK"))
-                await asyncio.sleep(10)
-                await self.bot.change_presence(activity=discord.Game("Visual Studio Code"))
-                await asyncio.sleep(10)
-                await self.bot.change_presence(activity=discord.Game("Atom Editor"))
-                await asyncio.sleep(10)
-                await self.bot.change_presence(activity=discord.Game("Fixing Bugs..."))
-                await asyncio.sleep(10)
-                await self.bot.change_presence(activity=discord.Game("Publishing Releases..."))
-                await asyncio.sleep(10)
-                await self.bot.change_presence(activity=discord.Game("v0.6 | " + config.prefix[0] + "help"))
-                await asyncio.sleep(10)
+    @commands.cooldown(1,30,commands.BucketType.user)
+    async def scanurl(self, ctx, url: str):
+        """Scans a URL using VirusTotal"""
+        #Need to import base64 module to work
+        await ctx.message.delete()
+        header = {'x-apikey': '{}'.format(apikey)}
+        data = {'url': url}
+        vturl = "https://www.virustotal.com/api/v3/urls"
+        response = requests.post(vturl, data = data, headers = header).json()
+        response = str(response).split(",")
+        keyword = "'id': '"
+        for i in response:
+            if keyword in str(i):
+                response = i.replace(keyword, "").replace("}", "").replace("'", "").replace(" ", "").split("-")
+                try:
+                    result_id = str(response[1])
+                except Exception:
+                    em = discord.Embed(title = "Something went wrong. Could be that you did not add the http/https prefix at the beginning of the webpage.", color = discord.Color.red())
+                    em.set_author(name="VirusTotal", icon_url=iconurl)
+                    await ctx.reply(embed = em, mention_author=False)
+                    return
+                break
+        try:
+            vturl = "https://www.virustotal.com/api/v3/urls/{}".format(result_id)
+        except Exception:
+            em = discord.Embed(title = "Something went wrong.", color = discord.Color.red())
+            em.set_author(name="VirusTotal", icon_url=iconurl)
+            await ctx.reply(embed = em, mention_author=False)
+            return
+        em = discord.Embed(title = "Analyzing URL...", description = "Please wait for 15 seconds.", color = discord.Color.blue())
+        em.set_author(name="VirusTotal", icon_url=iconurl)
+        msg = await ctx.reply(embed = em, mention_author=False)
+        await asyncio.sleep(15)
+        response = requests.get(vturl, headers=header).json()
+        response = str(response).split(",")
+        parsed = vt_json_parsing(response)
+        if parsed == -1:
+            new_embed = discord.Embed(title = "Something went wrong. Could be that you did not add the http/https prefix at the beginning of the webpage.", color = discord.Color.red())
+            #await ctx.reply(embed = em)
+            await msg.edit(embed=new_embed)
         else:
-            em = discord.Embed(title = "This command is for the bot owner only!")
-            await ctx.send(embed = em)
+            generated_link = "https://www.virustotal.com/gui/url/{}/detection".format(result_id)
+            if int(parsed) >= 1:
+                new_embed = discord.Embed(title = "Detections: {}".format(str(parsed)), color = discord.Color.red())
+            else:
+                new_embed = discord.Embed(title = "Detections: {}".format(str(parsed)), color = discord.Color.green())
+            new_embed.set_author(name="VirusTotal", icon_url=iconurl)
+            new_embed.add_field(name="Link:", value=generated_link)
+            #await ctx.reply(embed = em)
+            await msg.edit(embed=new_embed)
+
 
 def setup(bot):
     bot.add_cog(Utils(bot))

@@ -39,101 +39,113 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def purge(self, ctx, amount=10):
-        """Purge messages, default amount is 10."""
+        """Purges messages, the default amount is 10"""
+        if amount >= 100:
+            await ctx.reply("This bot can only purge up to 99 messages.")
         await ctx.channel.purge(limit=amount+1)
 
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def kick(self, ctx, user: discord.Member, *reason):
-        """Kick a member."""
+        """Kicks a member"""
         args = " ".join(reason[:])
         if not reason:
             await user.kick()
             em = discord.Embed(title = f"**{user}** has been kicked, reason: **none**.", color = discord.Color.blue())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
         else:
             await user.kick()
             em = discord.Embed(title = f"**{user}** has been kicked, reason: **{args}**.", color = discord.Color.blue())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def ban(self, ctx, user: discord.Member, *reason):
-        """Ban a member."""
+        """Bans a member"""
         args = " ".join(reason[:])
         if not reason:
             await user.ban()
             em = discord.Embed(title = f"**{user}** has been banned, reason: **none**.", color = discord.Color.blue())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
         else:
             await user.ban()
             em = discord.Embed(title = f"**{user}** has been banned, reason: **{args}**.", color = discord.Color.blue())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command() # Takes 1s 1m 1h 1d
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def mute(self, ctx, user: discord.Member, mutetime):
         #BTW need to import time&asyncio module to work.
-        """Mute a member."""
+        """Mutes a member"""
         if timeconvertion(mutetime) is not False:
             role = discord.utils.get(user.guild.roles, name="muted")
             await user.add_roles(role)
             em = discord.Embed(title = "User has been muted for " + "`{}`".format(str(mutetime)) + ".", color = discord.Color.blue())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
             await asyncio.sleep(timeconvertion(mutetime))
             await user.remove_roles(role)
         elif timeconvertion(mutetime) is False:
             em = discord.Embed(title = "The time format doesn't seem right.")
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def softban(self, ctx, user: discord.Member, *reason):
+        """Softbans a member, which bans and unbans them, removing the messages they sent in the last 7 days"""
         args = " ".join(reason[:])
         await ctx.guild.ban(user)
         await ctx.guild.unban(user)
         if not reason:
             em = discord.Embed(title = f"**{user}** has been softbanned, reason: **none**.", color = discord.Color.blue())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
         else:
             em = discord.Embed(title = f"**{user}** has been softbanned, reason: **{args}**.", color = discord.Color.blue())
-            await ctx.send(embed = em)
+            await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def unban(self, ctx, userid: int):
-        """Unban a member."""
+        """Unbans a member"""
         userToUnban = await self.bot.fetch_user(id)
         await ctx.guild.unban(userToUnban)
         em = discord.Embed(title = "Successfully unbanned `" + userToUnban.name + "`.", color = discord.Color.green())
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def unmute(self, ctx, user: discord.Member):
-        """Unmute a member."""
+        """Unmutes a member"""
         role = discord.utils.get(user.guild.roles, name="muted")
         await user.remove_roles(role)
         em = discord.Embed(title = "Successfully unmuted `" + user.name + "`", color = discord.Color.green())
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def warn(self, ctx, user : discord.Member, *reason):
+        """Warns a member"""
         args = " ".join(reason[:])
         if not os.path.exists('warns'):
             os.makedirs('warns')
         try:
             if os.stat("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py").st_size > 0:
-                await ctx.send("Successfully warned that member.")
+                await ctx.reply("Successfully warned that member.", mention_author=False)
                 writeReasonTemplate = str(args)
                 warns = open("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py", 'a')
                 warns.write("\n")
@@ -141,13 +153,13 @@ class Moderation(commands.Cog):
                 warns.close()
 
             elif os.stat("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py").st_size == 0:
-                await ctx.send("Successfully warned that member.")
+                await ctx.reply("Successfully warned that member.", mention_author=False)
                 writeReasonTemplate = f"str(args)"
                 warns = open("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py", 'a')
                 warns.write(writeReasonTemplate)
                 warns.close()
         except OSError:
-            await ctx.send("Successfully warned that member.")
+            await ctx.reply("Successfully warned that member.", mention_author=False)
             writeReasonTemplate = str(args)
             warns = open("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py", 'a')
             warns.write(writeReasonTemplate)
@@ -156,7 +168,9 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def warns(self, ctx, user : discord.Member):
+        """Warns a member"""
         if not os.path.exists('warns'):
             os.makedirs('warns')
         try:
@@ -165,21 +179,23 @@ class Moderation(commands.Cog):
                     lines = f.readlines()
                     lines_clean = "".join(lines[:])
                     if not lines_clean:
-                        em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings", color = discord.Color.blue())
+                        em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings.", color = discord.Color.blue())
                     else:
                         em = discord.Embed(title = "Warns for " + str(user), description = lines_clean, color = discord.Color.blue())
-                        await ctx.send(embed = em)
+                        await ctx.reply(embed = em, mention_author=False)
             elif os.stat("warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py").st_size == 0:
-                em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings", color = discord.Color.blue())
-                await ctx.send(embed = em)
+                em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings.", color = discord.Color.blue())
+                await ctx.reply(embed = em, mention_author=False)
         except OSError:
-                em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings", color = discord.Color.blue())
-                await ctx.send(embed = em)
+                em = discord.Embed(title = "Warns for " + str(user), description = "This user has no warnings.", color = discord.Color.blue())
+                await ctx.reply(embed = em, mention_author=False)
 
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def delwarn(self, ctx, user : discord.Member, *, reason):
+        """Deletes a warning"""
         if not os.path.exists('warns'):
             os.makedirs('warns')
         fn = "warns/" + str(user.id) + "_" + str(ctx.message.guild.id) + ".py"
@@ -193,26 +209,30 @@ class Moderation(commands.Cog):
         f = open(fn, 'w')
         f.writelines(output)
         f.close()
-        await ctx.send("Successfully removed that warning.", delete_after=10.0)
+        await ctx.reply("Successfully removed that warning.", delete_after=10.0, mention_author=False)
 
     
     @commands.command(pass_context=True)
     @commands.has_permissions(manage_nicknames=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def modnick(self, ctx, *, user: discord.Member):
+        """Moderates a nickname for a member, which sets it to 'ModdedNick' and a series of random letters and numbers"""
         source = string.ascii_letters + string.digits
         result_str = ''.join((random.choice(source) for i in range(8)))
         newnickname = f"ModdedNick{result_str}"
         await user.edit(nick=newnickname)
         await ctx.message.delete()
-        await ctx.send(f'Nickname was moderated for {user.mention} ({user.name}#{user.discriminator}).', delete_after=5.0)
+        await ctx.reply(f'Nickname was moderated for {user.mention} ({user.name}#{user.discriminator}).', delete_after=5.0, mention_author=False)
 
 
     @commands.command(pass_context=True)
     @commands.has_permissions(manage_nicknames=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def changenick(self, ctx, user: discord.Member, nick):
+        """Changes a nickname for a member"""
         await user.edit(nick=nick)
         await ctx.message.delete()
-        await ctx.send(f'Nickname was changed for {user.mention} ({user.name}#{user.discriminator}).', delete_after=5.0)
+        await ctx.reply(f'Nickname was changed for {user.mention} ({user.name}#{user.discriminator}).', delete_after=5.0, mention_author=False)
 
 def setup(bot):
     bot.add_cog(Moderation(bot))

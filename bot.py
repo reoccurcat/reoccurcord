@@ -3,11 +3,15 @@
 # This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from msilib.schema import Error
 import os
+from typing import Mapping
 import config
 import discord
 import aiohttp
 import globalconfig
+import time
+import asyncio
 #import datetime
 #import requests
 from discord.ext import commands
@@ -17,8 +21,10 @@ intents.members = True
 
 description = ""
 
-bot = commands.Bot(command_prefix=config.prefix, description=description, intents=intents)
+bot = commands.Bot(command_prefix=config.prefix, description=description, intents=intents, activity=discord.Game(name=f'v{globalconfig.version} | {config.prefix}help'))
+
 #bot.remove_command('help')
+
 class MyNewHelp(commands.MinimalHelpCommand):
     def get_command_signature(self, command):
         return '%s%s %s' % (self.clean_prefix, command.qualified_name, command.signature)
@@ -29,14 +35,97 @@ class MyNewHelp(commands.MinimalHelpCommand):
             await destination.send(embed=emby)
     async def send_bot_help(self, mapping):
         embed = discord.Embed(title="Help", color=discord.Color.blue())
+        cognames = []
+        commandlist = []
+        num = 0
         for cog, commands in mapping.items():
-           filtered = await self.filter_commands(commands, sort=True)
-           command_signatures = [self.get_command_signature(c) for c in filtered]
-           if command_signatures:
+            filtered = await self.filter_commands(commands, sort=True)
+            command_signatures = [self.get_command_signature(c) for c in filtered]  
+            if command_signatures:
+                num += 1   
                 cog_name = getattr(cog, "qualified_name", "No Category")
-                embed.add_field(name=cog_name, value="\n".join(command_signatures))
+                if cog_name != "No Category":
+                    cognames.append(f'**Page {num}:**\t{cog_name}')
+                    commandlist.append("\n".join(command_signatures))
+                    embed.add_field(name=cog_name, value="\n".join(command_signatures))
         channel = self.get_destination()
-        await channel.send(embed=embed)
+        em = discord.Embed(title="Command List", description="This is the command list of FreeDiscord's commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
+        em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+        msg = await channel.send(embed=em)
+        oldpage = 0
+        emojilist = [ "🏠", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "⏹️"]
+        for emoji in emojilist:
+            await msg.add_reaction(f"{emoji}")
+        def check(reaction, user):
+            return user == self.context.author and str(reaction.emoji) in emojilist
+        while True:
+            try:
+                reaction, user = await bot.wait_for("reaction_add", timeout=60, check=check)
+                # waiting for a reaction to be added - times out after x seconds, 60 in this
+                if str(reaction.emoji) == "1️⃣":
+                    page = 1
+                    em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
+                    em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                    await msg.edit(embed=em)
+                    await msg.remove_reaction(reaction, user)
+                    oldpage = 1
+                elif str(reaction.emoji) == "2️⃣":
+                    page = 2
+                    em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
+                    em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                    await msg.edit(embed=em)
+                    await msg.remove_reaction(reaction, user) 
+                    oldpage = 2
+                elif str(reaction.emoji) == "3️⃣":
+                    page = 3
+                    em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
+                    em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                    await msg.edit(embed=em)
+                    await msg.remove_reaction(reaction, user)
+                    oldpage = 3
+                elif str(reaction.emoji) == "4️⃣":
+                    page = 4
+                    em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
+                    em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                    await msg.edit(embed=em)
+                    await msg.remove_reaction(reaction, user)
+                    oldpage = 4
+                elif str(reaction.emoji) == "🏠":
+                    page = 5
+                    em = discord.Embed(title="Command List", description="This is the command list of FreeDiscord's commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
+                    em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                    await msg.edit(embed=em)
+                    await msg.remove_reaction(reaction, user)
+                    oldpage = 5
+                elif str(reaction.emoji) == "⏹️":
+                    for emoji in emojilist:
+                        await msg.clear_reaction(emoji)
+                    break
+            except asyncio.TimeoutError:
+                for emoji in emojilist:
+                    await msg.clear_reaction(emoji)
+                break
+                # ending the loop if user doesn't react after x seconds
+            except IndexError:
+                await msg.remove_reaction(reaction, user)
+                em = discord.Embed(title="Error", description="Oops! You may not have permission to see this command group!", color=discord.Color.red())
+                em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                await msg.edit(embed=em)
+                await asyncio.sleep(5) 
+                if oldpage == 0:
+                    em = discord.Embed(title="Command List", description="This is the command list of FreeDiscord's commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
+                    em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                    await msg.edit(embed=em)
+                else:
+                    try:
+                        page = oldpage
+                        em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
+                        em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
+                        await msg.edit(embed=em)
+                    except Exception as e:
+                        raise e
+                    await msg.edit(embed=em)
+                    continue
     async def send_error_message(self, error):
         embed = discord.Embed(title="Error", value=error, color=discord.Color.red())
         channel = self.get_destination()
@@ -47,10 +136,15 @@ class MyNewHelp(commands.MinimalHelpCommand):
         alias = command.aliases
         if alias:
             embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
-
         channel = self.get_destination()
         await channel.send(embed=embed)
+
 bot.help_command = MyNewHelp()
+
+async def resetcommands():
+    while True:
+        mostusedcommands = []
+        time.sleep(21600)
 
 @bot.event
 async def on_ready():
@@ -61,7 +155,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     # Changes bot status to the default status when the bot starts up
-    await bot.change_presence(activity=discord.Game(name='v' + globalconfig.version + " | " + config.prefix + "help"))
+    #await bot.change_presence(activity=discord.Game(name='v' + globalconfig.version + " | " + config.prefix + "help"))
     try:
         async with aiohttp.ClientSession() as session:
             webhook = discord.Webhook.from_url(config.infowebhook, adapter=discord.AsyncWebhookAdapter(session))
@@ -70,6 +164,7 @@ async def on_ready():
     except AttributeError:
         user = bot.get_user(int(config.ownerID))
         await user.send("The bot is back online.")
+    #await resetcommands()
 
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
@@ -84,7 +179,7 @@ for filename in os.listdir('./cogs'):
 @bot.event
 async def on_message(msg):
     if str(msg.author.id) in config.blacklist:
-        for command in globalconfig.commands:
+        for command in bot.commands:
             newcontent = msg.content.split()[0]
             if newcontent.__contains__(config.prefix + str(command)):
                 em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
@@ -97,22 +192,22 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         em = discord.Embed(title = "Error", description = "You do not have permission to do that.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em)
     elif isinstance(error, commands.MissingRequiredArgument):
         em = discord.Embed(title = "Error", description = "Your command is missing an argument.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em, mention_author=False)
     elif isinstance(error, commands.CommandNotFound):
         em = discord.Embed(title = "Error", description = "Command not found", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em, mention_author=False)
     elif isinstance(error, commands.CommandOnCooldown):
         em = discord.Embed(title = "Cooldown Error", color = discord.Color.red())
         em.add_field(name = "Error Details", value = f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds.')
-        await ctx.send(embed=em)
+        await ctx.reply(embed=em, mention_author=False)
     else:
         em = discord.Embed(title = "An internal error occurred.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.send(embed = em)
+        await ctx.reply(embed = em, mention_author=False)
 
 bot.run(config.bot_token)

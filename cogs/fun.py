@@ -6,6 +6,7 @@
 
 ###### SORTED IMPORTS FOR CLEANER LOOK ######
 
+from ast import alias
 import config
 import random
 import aiohttp
@@ -17,10 +18,14 @@ import importlib
 import sys
 import shutil
 import json
+import cryptography
+import binascii
 #import time
 #import concurrent.futures
 #import bot
 #import psutil 
+from discord.ext import commands
+from cryptography.fernet import Fernet
 from bs4 import BeautifulSoup
 from discord.ext import commands
 
@@ -44,13 +49,13 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def add(self, ctx, *integers): # creates a list of input (I haven't typecasted to (int) due to multitude of reasons)
-        """Adds multiple numbers together."""
-        if len(integers) <= 1:
-            return await ctx.send("Provide at least two or more numbers!")
-        
+    @commands.cooldown(1,5,commands.BucketType.user)
+    async def add(self, ctx, *numbers): # creates a list of input (I haven't typecasted to (int) due to multitude of reasons)
+        """Adds multiple numbers together"""
+        if len(numbers) <= 1:
+            return await ctx.reply("Provide at least two or more numbers!", mention_author=False)
         new_list = [] # initializing new list
-        for number in integers: # iterating over the original list of numbers
+        for number in numbers: # iterating over the original list of numbers
             try:
                new_number = float(number) # conver the output to integer
                new_list.append([new_number, str(number)])
@@ -63,35 +68,39 @@ class Fun(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
 
     
-    @commands.command(description='For when you wanna settle the score some other way')
-    async def choose(self, ctx, *choices: str):
-        """Chooses between multiple choices.""" # removed unnecessary lines of code
+    @commands.command(aliases=['choices'])
+    @commands.cooldown(1,5,commands.BucketType.user)
+    async def choose(self, ctx, *, choices):
+        '''Chooses randomly between multiple choices'''
         if "@everyone" in choices or "@here" in choices:
             em = discord.Embed(title = "Nice try, sadly that won't work here.", color = discord.Color.red())
             return await ctx.reply(embed=em, mention_author=False)
         em = discord.Embed(title = random.choice(choices), color = discord.Color.blue())
         await ctx.reply(embed=em, mention_author=False) 
     
-    @commands.command(description='#emotes')
-    async def emote(self, ctx, emote : discord.Emoji = None):
-        """emote command"""
-        if emote is None:
-            em = discord.Embed(title="No emote given", description = f"Please use `{config.prefix[0]}emote <emote>`.", color = discord.Color.red())
+    @commands.command(aliases=["emote"])
+    @commands.cooldown(1,10,commands.BucketType.user)
+    async def emoji(self, ctx, emoji : discord.Emoji = None):
+        """Gets the info of an emoji"""
+        if emoji is None:
+            em = discord.Embed(title="No emoji given", description = f"Please use `{config.prefix}emoji <emoji>`.", color = discord.Color.red())
             await ctx.reply(embed=em, mention_author=False)
         try:
-            em = discord.Embed(timestamp=emote.created_at, color = discord.Color.blue())
-            em.set_author(name=emote.name, icon_url=emote.url)
-            em.set_thumbnail(url=emote.url)
+            em = discord.Embed(timestamp=emoji.created_at, color = discord.Color.blue())
+            em.set_author(name=emoji.name, icon_url=emoji.url)
+            em.set_thumbnail(url=emoji.url)
             em.set_footer(text="Created on")
-            em.add_field(name="ID", value=emote.id)
-            em.add_field(name="Usage", value=f"`{emote}`")
-            em.add_field(name="URL", value=f"[click here]({emote.url})") # masked links instead of actually sending the full link
+            em.add_field(name="ID", value=emoji.id)
+            em.add_field(name="Usage", value=f"`{emoji}`")
+            em.add_field(name="URL", value=f"[click here]({emoji.url})") # masked links instead of actually sending the full link
             await ctx.reply(embed=em, mention_author=False)
         except IndexError:
-            em = discord.Embed(title="Error", description="There was an error fetching the emote. The most likely cause is that it's from a server the bot isn't in.", color = discord.Color.red())
+            em = discord.Embed(title="Error", description="There was an error fetching the emoji. The most likely cause is that it's from a server the bot isn't in.", color = discord.Color.red())
 
     @commands.command()
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def f(self, ctx, *, message2):
+        """Puts an interative 'f in the chat' embed into the chat"""
         em = discord.Embed(title = f"F in the chat to: **{message2}**", color=discord.Color.blue())
         msg = await ctx.reply(embed=em, mention_author=False)
         await msg.add_reaction('🇫')
@@ -129,9 +138,13 @@ class Fun(commands.Cog):
                     em2.add_field(name="Users who paid respects", value=f"{multipleusers}")
                     await msg.edit(embed=em2)
 
-    @commands.command()
+    @commands.command(aliases=['img', 'findimage', 'fetchimage'])
+    @commands.cooldown(1,30,commands.BucketType.user)
     async def image(self, ctx, *, query):
+        """Search for images using searx"""
         query = query.replace(" ", "+")
+        embed = discord.Embed(title="Image Search")
+        embed.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
         if not os.path.exists('cache'):
             os.makedirs('cache')
         if os.path.isfile(f'cache/{query}.py'):
@@ -139,6 +152,7 @@ class Fun(commands.Cog):
             #print("Using cache file:\n")
             importedquery = importlib.import_module(f"{str(query)}")
             images = importedquery.cache
+            embed.set_footer(text=f"Images from this query currently are from the cache.\nTo clear the cache, try running {config.prefix}help clearcache")
         else:
             images = []
             htmldata = await getdata(f'https://searx.prvcy.eu/search?q={query}&categories=images')
@@ -168,15 +182,19 @@ class Fun(commands.Cog):
                         f = open(f"cache/{query}.py", "w")
                         f.write(f"cache = {images}")
                         f.close()
+                        embed.set_footer(text="Images of your query were cached.")
                     except Exception as e:
                         #print(e)
                         pass                        
         printimage = random.choice(images)
-        await ctx.send(str(printimage))
+        embed.set_image(url=printimage)
+        await ctx.reply(embed=embed, mention_author=False)
 
 
     @commands.command()
+    @commands.cooldown(2,5,commands.BucketType.user)
     async def listcache(self, ctx):
+        """Lists the image/web search cache files"""
         try:
             em = discord.Embed(title="Image Cache Files", description=f"`{', '.join(os.listdir('./cache/'))}`", color=discord.Color.blue())
             await ctx.reply(embed=em, mention_author=False)
@@ -186,27 +204,30 @@ class Fun(commands.Cog):
 
 
     @commands.command()
-    async def clearcache(self, ctx, clear = None):
+    @commands.cooldown(2,5,commands.BucketType.user)
+    async def clearcache(self, ctx, cachefile = None):
+        """Clears the image cache"""
         try:
-            clear = clear.replace(" ", "+")
+            cachefile = cachefile.replace(" ", "+")
         except AttributeError:
             pass
-        if clear is None:
+        if cachefile is None:
             shutil.rmtree("./cache")
             em = discord.Embed(title="Image Cache Directory Cleared", description="The `./cache` directory has been cleared. Images will take a few seconds longer to fetch as they recache.", color=discord.Color.green())
             await ctx.reply(embed=em, mention_author=False)
         else:
-            if os.path.isfile(f'cache/{clear}.py'):
-                os.remove(f"./cache/{clear}.py")
-                em = discord.Embed(title="Image Cache Directory Cleared", description=f"The `./cache/{clear}.py` file has been deleted. Images will take a few seconds longer to fetch as they recache.", color=discord.Color.green())
+            if os.path.isfile(f'cache/{cachefile}.py'):
+                os.remove(f"./cache/{cachefile}.py")
+                em = discord.Embed(title="Image Cache Directory Cleared", description=f"The `./cache/{cachefile}.py` file has been deleted. Images will take a few seconds longer to fetch as they recache.", color=discord.Color.green())
                 await ctx.reply(embed=em, mention_author=False)
             else:
-                em = discord.Embed(title="No cache file found.", description=f"There was no cache file found at `./cogs/{clear}.py`.", color=discord.Color.red())
+                em = discord.Embed(title="No cache file found.", description=f"There was no cache file found at `./cogs/{cachefile}.py`.", color=discord.Color.red())
                 await ctx.reply(embed=em, mention_author=False)
                 
     @commands.command(aliases=['rd'])
     @commands.cooldown(2,5,commands.BucketType.user)
     async def reddit(self, ctx, *, name):
+        """Gets a random post from a subreddit on Reddit"""
         posts = []
         subreddit = f"{name}"
         async with aiohttp.ClientSession() as session:
@@ -216,27 +237,23 @@ class Fun(commands.Cog):
                  for i in response['data']['children']:
                     posts.append(i['data'])
                 except KeyError:
-                    return await ctx.send("The subreddit you provided doesn't exist!")
+                    return await ctx.reply("The subreddit you provided doesn't exist!", mention_author=False)
                 try:
                  post = random.choice([p for p in posts if not p['stickied'] or p['is_self']])
                 except IndexError:
-                    return await ctx.send("The subreddit you provided doesn't exist!")
+                    return await ctx.reply("The subreddit you provided doesn't exist!", mention_author=False)
                 if post['over_18'] is True and ctx.channel.nsfw is False:
-                    return await ctx.send("Failed to get a post from that subreddit, try again in an NSFW channel.")
+                    return await ctx.reply("Failed to get a post from that subreddit, try again in an NSFW channel.", mention_author=False)
                 title = str(post['title'])
         embed=discord.Embed(title=f'{title}', colour=0xaf85ff, url=f"https://reddit.com/{post['permalink']}")
         embed.set_footer(text=f"{post['upvote_ratio'] * 100:,}% Upvotes | Posted to r/{post['subreddit']}")
         embed.set_image(url=post['url'])
         await ctx.reply(embed=embed, mention_author=False)
-        
-    @reddit.error
-    async def on_error(self, ctx, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            seconds = round(error.retry_after, 2)
-            return await ctx.send(f"You are being rated-limited, please try again in {seconds} seconds!")
     
-    @commands.command()
+    @commands.command(aliases=['weblook', 'websitepic', 'webpic'])
+    @commands.cooldown(1,30,commands.BucketType.user)
     async def websitepeek(self, ctx, *, url: str):
+        """Gets a screenshot of a website"""
         async with ctx.typing(), aiohttp.ClientSession() as session:
             screener = "http://magmachain.herokuapp.com/api/v1"
             async with session.post(screener, headers=dict(website=url)) as r:
@@ -245,8 +262,10 @@ class Fun(commands.Cog):
                 em.set_image(url=website)
                 await ctx.reply(embed=em, mention_author=False)
 
-    @commands.command()
+    @commands.command(aliases=['search', 'searx', 'google'])
+    @commands.cooldown(1,30,commands.BucketType.user)
     async def websearch(self, ctx, *, query):
+        """Searches the web for whatever you have it search for and returns a list of links"""
         query = query.replace(" ", "+")
         if not os.path.exists('cache'):
             os.makedirs('cache')
@@ -295,8 +314,10 @@ class Fun(commands.Cog):
             em.add_field(name="Error", value="Too many urls fetched (dev is working on a fix)")
         await ctx.reply(embed=em, mention_author=False)
 
-    @commands.command()
+    @commands.command(aliases=['anime'])
+    @commands.cooldown(1,15,commands.BucketType.user)
     async def animeinfo(self, ctx, query):
+        """Gets info on an anime"""
         try:
             query = query.replace(" ", "%20")
             apiurl = f"https://kitsu.io/api/edge/anime?filter[text]={str(query)}&page[limit]=1"
@@ -336,19 +357,18 @@ class Fun(commands.Cog):
             em.add_field(name="Age Rating", value=f'{data["data"][0]["attributes"]["ageRating"]} | {data["data"][0]["attributes"]["ageRatingGuide"]}')
             await ctx.reply(embed=em, mention_author=False)
             #print(data["data"][0]["attributes"]["titles"]["en"] + " (" + data["data"][0]["attributes"]["titles"]["ja_jp"] + ')\n')
-
             #print(data["data"][0]["attributes"]["synopsis"] + '\n')
-
             #print(data["data"][0]["attributes"]["status"])
-
             #print(data["data", "0", "attributes"])
         except IndexError:
             em = discord.Embed(title="Error", color=discord.Color.red())
             em.add_field(name="There was an error running the command", value="The bot probably couldn't find an anime with that name.")
-            await ctx.send(embed=em)
+            await ctx.reply(embed=em, mention_author=False)
 
-    @commands.command()
+    @commands.command(aliases=['kitty', 'kitten', 'cat'])
+    @commands.cooldown(1,10,commands.BucketType.user)
     async def catpic(self, ctx):
+        """Gets a photo of a cat"""
         apiurl = "https://api.thecatapi.com/v1/images/search"
         r = requests.get(apiurl).text
         #print(r)
@@ -362,8 +382,10 @@ class Fun(commands.Cog):
             em.set_image(url=item["url"])
         await ctx.reply(embed=em, mention_author=False)
 
-    @commands.command()
+    @commands.command(aliases=['identifyanime'])
+    @commands.cooldown(1,15,commands.BucketType.user)
     async def findanime(self, ctx, link=None):
+        """Finds an anime from an attached image. This command will take attached media and links."""
         try:
             if link is None:
                 link = ctx.message.attachments[0].url
@@ -420,7 +442,46 @@ class Fun(commands.Cog):
         except KeyError:
             em = discord.Embed(title="Error", color=discord.Color.red())
             em.add_field(name="There was an error running the command", value="You may have not provided a valid input. The bot will only accept images/videos/gifs either with the link provided or attached to the message. Another cause could have been the bot maybe didn't find an anime.")
-            await ctx.send(embed=em)
+            await ctx.reply(embed=em, mention_author=False)
+
+    @commands.command(aliases=["encrypt", "encryptmessage"])
+    @commands.cooldown(1,15,commands.BucketType.user)
+    async def encryptmsg(self, ctx, *, message):
+        """Encrypts your message with a random key that is generated and messaged to you."""
+        message = bytes(message, "utf-8")
+        await ctx.message.delete()
+        key = Fernet.generate_key()
+        encrypted = Fernet(key).encrypt(message)
+        embed = discord.Embed(title="Encrypted message", description=f"`{encrypted.decode()}`", color=discord.Color.blue())
+        embed.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=embed)
+        user = self.bot.get_user(ctx.message.author.id)
+        embed = discord.Embed(title="Encryption Key", description=f"Your decryption key is `{key.decode()}`.", color=discord.Color.blue())
+        embed.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
+        await user.send(embed=embed)
+
+
+    @commands.command(aliases=["decrypt", "decryptmessage"])
+    @commands.cooldown(1,15,commands.BucketType.user)
+    async def decryptmsg(self, ctx, *, message):
+        """Decrypts your encrypted message. Requires the encryption key."""
+        def check(message: discord.Message):
+            return message.channel == ctx.channel and message.author != ctx.me
+        embed = discord.Embed(title="Decryption Key", description="Please put in the key that was provided with the encrypted message.", color=discord.Color.blue())
+        embed.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
+        msg = await ctx.send(embed=embed)
+        providekey = await self.bot.wait_for('message', check=check)
+        key = bytes(providekey.content, "utf-8")
+        await providekey.delete()
+        try:
+            decrypted = Fernet(key).decrypt(bytes(message, "utf-8"))
+            embed = discord.Embed(title="Decrypted message", description=f"`{decrypted.decode()}`", color=discord.Color.blue())
+            embed.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
+            await msg.edit(embed=embed)
+        except (cryptography.fernet.InvalidToken, TypeError, binascii.Error):
+            embed = discord.Embed(title="Error", description="This is the incorrect key to decrypt this message.", color=discord.Color.red())
+            embed.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
+            await msg.edit(embed=embed)
 
 def setup(bot):
     bot.add_cog(Fun(bot))
