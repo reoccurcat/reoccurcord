@@ -127,7 +127,7 @@ class Utils(commands.Cog):
     async def quickpoll(self, ctx, *, poll): # umm why not just use (*, poll) instead of (*poll)
         await ctx.message.delete()
         em = discord.Embed(title = f'{poll}')
-        msg = await ctx.reply(embed = em, mention_author=False)
+        msg = await ctx.send(embed = em)
         await msg.add_reaction('👍')
         await msg.add_reaction('👎')
 
