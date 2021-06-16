@@ -5,7 +5,7 @@
 
 import os
 
-print("Welcome to the FreeDiscord interactive setup script!")
+print("Welcome to the reoccurcord interactive setup script!")
 def tokenWrite() :
     writeBotToken = input("Enter your bot token: ")
     verificationOne = input("Is this correct? (y/n): '" + writeBotToken + "'")

@@ -62,15 +62,15 @@ if "--help" in sys.argv[1]:
     try:
         bool(sys.argv[2])
     except IndexError:
-        sys.exit("FreeDiscord Start Script\nCommand List:\n\t--help - This message\n\t--start (or no argument) - Starts this FreeDiscord instance.\n\t--credits - Shows the credits of FreeDiscord.\n\t--updatebot - Updates this FreeDiscord instance.")
+        sys.exit("reoccurcord Start Script\nCommand List:\n\t--help - This message\n\t--start (or no argument) - Starts this reoccurcord instance.\n\t--credits - Shows the credits of reoccurcord.\n\t--updatebot - Updates this reoccurcord instance.")
     if sys.argv[2] == "gui":
-        sys.exit("FreeDiscord Start Script\npython3 start.py --start\nStarts the bot.")
+        sys.exit("reoccurcord Start Script\npython3 start.py --start\nStarts the bot.")
     elif sys.argv[2] == "help":
-        sys.exit("FreeDiscord Start Script\npython3 start.py --help\nShows the command list.")
+        sys.exit("reoccurcord Start Script\npython3 start.py --help\nShows the command list.")
     elif sys.argv[2] == "crash":
-        sys.exit("FreeDiscord Start Script\npython3 start.py --updatebot\nUpdates the FreeDiscord instance.")
+        sys.exit("reoccurcord Start Script\npython3 start.py --updatebot\nUpdates the reoccurcord instance.")
     elif sys.argv[2] == "credits":
-        sys.exit("redev's CrashDash\npython3 start.py --credits\nShows the credits of FreeDiscord.")
+        sys.exit("redev's CrashDash\npython3 start.py --credits\nShows the credits of reoccurcord.")
 
 if "--updatebot" in sys.argv[1]:
     botupdate()

@@ -18,7 +18,7 @@ sys.path.append(os.path.realpath('.'))
 start_time = time.time()
 
 apikey = config.virustotal_api
-iconurl = "https://freediscord.ga/vt_logo.png"
+iconurl = "https://rc.reoccur.tech/assets/vt_logo.png"
 
 def vt_json_parsing(detections):
     try:
@@ -172,7 +172,7 @@ class Utils(commands.Cog):
         em = discord.Embed(title = "About this instance", color = discord.Color.blue())
         em.add_field(name = "Instance name", value=f"{self.bot.user.name}#{self.bot.user.discriminator} ({self.bot.user.id})")
         em.add_field(name = "Website", value = "[Reoccur Tech](https://fd.reoccur.tech)")
-        em.add_field(name = "Project URL", value = "[Github Link](https://github.com/reoccurcat/freediscord/)")
+        em.add_field(name = "Project URL", value = "[Github Link](https://github.com/reoccurcat/reoccurcord/)")
         em.add_field(name = "Support server", value = "[Discord Server](https://discord.gg/BNhVjFyB3S)")
         em.add_field(name = "Bot invite link", value = "[Invite Link](https://fd.reoccur.tech/invite)")
         em.add_field(name = "Terms of Service", value = "[ToS](https://fd.reoccur.tech/tos)")
