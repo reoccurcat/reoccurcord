@@ -7,7 +7,7 @@ We will provide their services to you, which are subject to the conditions state
 
 ### Privacy Policy
 
-Before you continue using our website we advise you to read our [privacy policy](https://fd.reoccur.tech/privacy) regarding our user data collection. It will help you better understand our practices.
+Before you continue using our website we advise you to read our [privacy policy](https://rc.reoccur.tech/privacy) regarding our user data collection. It will help you better understand our practices.
 
 ### Copyright
 
