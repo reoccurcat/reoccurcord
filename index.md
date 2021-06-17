@@ -1,4 +1,4 @@
-# FreeDiscord
+# reoccurcord
 ## Welcome to the official GitHub page of the reoccurcord bot!
 
 ### To invite the bot, click [here](https://rc.reoccur.tech/invite). 
