@@ -233,18 +233,21 @@ def firstwebhookwrite() :
         exit()
 
 if os.path.exists("config.py"):
-    prompt = input("Existing config.py found. Should I delete it? (y/n)")
-    if prompt == "y":
-        print("Deleting existing config file...")
+    if os.stat("config.py").st_size == 0:
         os.remove("config.py")
-        print("Deleted! Continuing with normal script now...")
-        print()
-    elif prompt == "n":
-        print("Exiting...")
-        exit()
-    elif prompt != "n" or "y":
-        print("Invalid response, please rerun the script.")
-        exit()
+    else:
+        prompt = input("Existing config.py found. Should I delete it? (y/n)")
+        if prompt == "y":
+            print("Deleting existing config file...")
+            os.remove("config.py")
+            print("Deleted! Continuing with normal script now...")
+            print()
+        elif prompt == "n":
+            print("Exiting...")
+            exit()
+        elif prompt != "n" or "y":
+            print("Invalid response, please rerun the script.")
+            exit()
 
 tokenWrite()
 prefixWrite()
