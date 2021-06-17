@@ -82,6 +82,8 @@ class Fun(commands.Cog):
     @commands.cooldown(2,8,commands.BucketType.user)
     async def deadchat(self, ctx):
         # totally useful command btw
+        
+        await ctx.message.delete()
         rand = random.randint(1,3)
         
         if rand == 1:
