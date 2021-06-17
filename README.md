@@ -34,7 +34,7 @@ You can find the support server here:
 
 You can invite the main bot instance here:
 
-[Main Bot Invite Link](https://fd.reoccur.tech/invite)
+[Main Bot Invite Link](https://rc.reoccur.tech/invite)
 
 Like earlier said, if you have any feature requests or issues with the bot, open an issue [here](https://github.com/reoccurcat/reoccurcord/issues)!
 Enjoy the bot! We hope you have as much fun with it as we had programming it! :)
