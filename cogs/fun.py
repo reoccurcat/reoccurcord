@@ -76,7 +76,22 @@ class Fun(commands.Cog):
             em = discord.Embed(title = "Nice try, sadly that won't work here.", color = discord.Color.red())
             return await ctx.reply(embed=em, mention_author=False)
         em = discord.Embed(title = random.choice(choices), color = discord.Color.blue())
-        await ctx.reply(embed=em, mention_author=False) 
+        await ctx.reply(embed=em, mention_author=False)
+        
+    @commands.command()
+    @commands.cooldown(2,8,commands.BucketType.user)
+    async def deadchat(self, ctx):
+        # totally useful command btw
+        await ctx.message.delete()
+        rand = random.randint(1,3)
+        em = discord.Embed(title="dead chat xd", color=discord.Color.blue())
+        if rand == 1:
+            em.set_image(url="https://images-ext-2.discordapp.net/external/VkYcIzxshSNt1r63cWY9zMP9aEi6XGI5BkaS-Y8l8sM/https/media.discordapp.net/attachments/841435792274751519/847285207349854208/deadchat.gif")
+        elif rand == 2:
+            em.set_image(url="https://media.discordapp.net/attachments/850045054923964447/855157429968568360/tenor_1.gif")
+        elif rand == 3:
+            em.set_image(url="https://tenor.com/view/chat-dead-gif-18627672")
+        await ctx.send(embed=em)
     
     @commands.command(aliases=["emote"])
     @commands.cooldown(1,10,commands.BucketType.user)
