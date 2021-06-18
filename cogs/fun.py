@@ -565,12 +565,15 @@ class Fun(commands.Cog):
         """Checks an image for NSFW content"""
         if link is None:
             link = ctx.message.attachments[0].url
+        await ctx.message.delete()
+        em = discord.Embed(title="Your image is being analyzed. Please wait...", color=discord.Color.red())
+        em.set_author(icon_url="https://rc.reoccur.tech/assets/icon.gif", name="Image Analyzer")
+        message1 = await ctx.send(embed=em)
         if censor is not None:
             nsfw, detection, censoredimage = await getunsafe(link, censor=True)  
         else:
             nsfw, detection, censoredimage = await getunsafe(link)  
         if nsfw is True:
-            await ctx.message.delete()
             em = discord.Embed(color=discord.Color.red())
             em.set_author(icon_url="https://rc.reoccur.tech/assets/alert.png", name="Image Analyzer")
         else:
@@ -584,10 +587,12 @@ class Fun(commands.Cog):
                 if bool(censoredimage):
                     file = discord.File(censoredimage, filename="censoredimage.jpg")
                     em.set_image(url="attachment://censoredimage.jpg")
+                    await message1.delete()
                     await ctx.send(file=file, embed=em)
             except UnboundLocalError:
                 pass
         else:
+            await message1.delete()
             await ctx.send(embed=em)
     
     @commands.command()
