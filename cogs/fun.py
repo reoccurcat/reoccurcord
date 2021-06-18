@@ -7,6 +7,8 @@
 ###### SORTED IMPORTS FOR CLEANER LOOK ######
 
 from ast import alias
+
+from yarl import URL
 import config
 import random
 import aiohttp
@@ -20,6 +22,7 @@ import shutil
 import json
 import cryptography
 import binascii
+import aiofiles
 #import time
 #import concurrent.futures
 #import bot
@@ -28,6 +31,11 @@ from discord.ext import commands
 from cryptography.fernet import Fernet
 from bs4 import BeautifulSoup
 from discord.ext import commands
+from nudenet import NudeClassifier
+from nudenet import NudeDetector
+
+classifier = NudeClassifier()
+detector = NudeDetector()
 
 ##############################################
 
@@ -43,6 +51,40 @@ async def getdata(url):  # switch from requests module to aiohttp (see above for
         async with session.get(url) as response:
             r = await response.text()  
     return r
+
+async def getunsafe(url, censor=None):
+    threshold = 25
+    tempimage = f"cache/tempimage{random.randint(1, 10)}.jpg"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            f = await aiofiles.open(tempimage, mode='wb')
+            await f.write(await response.read())
+            await f.close()
+    if censor is not None:
+        censoredimage = f'{tempimage.split(".")[0]}-censored.jpg'
+        detector.censor(tempimage, out_path=censoredimage, visualize=False)
+    detection = classifier.classify(tempimage)
+    detection = detection[tempimage]["unsafe"]
+    detection = detection*100
+    detection = round(detection, 2)
+    os.remove(tempimage)
+    if detection >= threshold:
+        nsfw = True
+        if censor is not None and censoredimage is not None:
+            try:
+                if bool(censoredimage):
+                    if detection >= threshold:
+                        return nsfw, detection, censoredimage
+            except UnboundLocalError:
+                censoredimage = False
+                return nsfw, detection, censoredimage
+        else:
+            censoredimage = False
+            return nsfw, detection, censoredimage
+    else:
+        nsfw = False
+        censoredimage = False
+        return nsfw, detection, censoredimage
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -139,7 +181,7 @@ class Fun(commands.Cog):
                     await msg.edit(embed=em2)
 
     @commands.command(aliases=['img', 'findimage', 'fetchimage'])
-    @commands.cooldown(1,30,commands.BucketType.user)
+    #@commands.cooldown(1,30,commands.BucketType.user)
     async def image(self, ctx, *, query):
         """Search for images using searx"""
         query = query.replace(" ", "+")
@@ -154,6 +196,9 @@ class Fun(commands.Cog):
             images = importedquery.cache
             embed.set_footer(text=f"Images from this query currently are from the cache.\nTo clear the cache, try running {config.prefix}help clearcache")
         else:
+            em = discord.Embed(title="Image Search", description="Images are getting cached. Please wait...")
+            em.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
+            await ctx.reply(embed=em)
             images = []
             htmldata = await getdata(f'https://searx.prvcy.eu/search?q={query}&categories=images')
             #print(f"https://www.bing.com/images/search?q={str(newquery)}")
@@ -187,8 +232,25 @@ class Fun(commands.Cog):
                         #print(e)
                         pass                        
         printimage = random.choice(images)
+        if not isinstance(ctx.channel, discord.channel.DMChannel):
+            if ctx.channel.nsfw is False:
+                nsfw, detection, censoredimage = await getunsafe(printimage)
+                if nsfw is True:
+                    embed = discord.Embed(title="Possible NSFW Blocked!", color=discord.Color.red()) 
+                    embed.add_field(name="Detection Percent", value=str(detection))
+                    embed.add_field(name="What is this?", value="This bot automatically finds and blocks NSFW (Not Safe For Work) content. This content was detected as NSFW.")
+                    await ctx.send(embed=embed)
+                    return
+        else:
+            nsfw, detection, censoredimage = await getunsafe(printimage)
+            if nsfw is True:
+                embed = discord.Embed(title="Possible NSFW Blocked!", color=discord.Color.red()) 
+                embed.add_field(name="Detection Percent", value=str(detection))
+                embed.add_field(name="What is this?", value="This bot automatically finds and blocks NSFW (Not Safe For Work) content. This content was detected as NSFW.")
+                await ctx.send(embed=embed)
+                return
         embed.set_image(url=printimage)
-        await ctx.reply(embed=embed, mention_author=False)
+        await ctx.send(embed=embed)
 
 
     @commands.command()
@@ -482,6 +544,175 @@ class Fun(commands.Cog):
             embed = discord.Embed(title="Error", description="This is the incorrect key to decrypt this message.", color=discord.Color.red())
             embed.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
             await msg.edit(embed=embed)
+
+    @commands.command()
+    async def analyzeimage(self, ctx, censor=None, link=None):
+        """Checks an image for NSFW content"""
+        if link is None:
+            link = ctx.message.attachments[0].url
+        if censor is not None:
+            nsfw, detection, censoredimage = await getunsafe(link, censor=True)  
+        else:
+            nsfw, detection, censoredimage = await getunsafe(link)  
+        if nsfw is True:
+            await ctx.message.delete()
+            em = discord.Embed(color=discord.Color.red())
+            em.set_author(icon_url="https://rc.reoccur.tech/assets/alert.png", name="Image Analyzer")
+        else:
+            em = discord.Embed(color=discord.Color.green())
+            em.set_author(icon_url="https://rc.reoccur.tech/assets/checkmark.png", name="Image Analyzer")
+        em.add_field(name="NSFW Verdict", value=str(nsfw))
+        em.add_field(name="NSFW Detection", value=f"{str(detection)}%")
+        em.set_footer(icon_url=ctx.author.avatar_url, text=f"{ctx.author.name}#{ctx.author.discriminator}")
+        if censoredimage is not False:
+            try:
+                if bool(censoredimage):
+                    file = discord.File(censoredimage, filename="censoredimage.jpg")
+                    em.set_image(url="attachment://censoredimage.jpg")
+                    await ctx.send(file=file, embed=em)
+            except UnboundLocalError:
+                pass
+        else:
+            await ctx.send(embed=em)
+    
+    @commands.command()
+    async def neko(self, ctx, choice = None, user: discord.User = None):
+        """Use the command to see information on how to use it"""
+        if choice == "slap":
+            url = "http://api.nekos.fun:8080/api/slap"
+            jsondata = await getdata(url)
+            data = json.loads(jsondata)
+            if os.path.isdir("data") is False:
+                os.mkdir("data")
+            if os.path.isdir("data/roleplay") is False:
+                os.mkdir("data/roleplay")
+            if os.path.isfile(f"data/slap/{user.id}.py"):
+                sys.path.insert(0, "data/roleplay")
+                data2 = importlib.import_module(f"{str(user.id)}_slap")
+                file = open(f"data/roleplay/{user.id}_slap.py", "r")
+                readfile = file.read()
+                file.close()
+                slapnum2 = int(data2.slapnum)+1
+                readfile = readfile.replace(str(data2.slapnum), str(slapnum2))
+                file = open(f"data/roleplay/{user.id}_slap.py", "w")
+                file.write(readfile)
+                file.close()
+                importlib.reload(data2)
+            else:
+                sys.path.insert(0, "data/roleplay")
+                file = open(f"data/roleplay/{user.id}_slap.py", "w")
+                file.write("slapnum = 1")
+                file.close()
+                data2 = importlib.import_module(f"{str(user.id)}_slap")
+            em = discord.Embed(title=f"**{ctx.author.name}** slaps **{user.name}**!")
+            em.set_image(url=data["image"])
+            if data2.slapnum == "1":
+                slapnum = "first"
+            elif data2.slapnum == "2":
+                slapnum = f"{data2.slapnum}nd"
+            elif data2.slapnum == "3":
+                slapnum = f"{data2.slapnum}rd"
+            else:
+                slapnum = f"{data2.slapnum}th"
+            em.set_footer(text=f"This is their {slapnum} slap!")
+            await ctx.send(embed=em)
+        elif choice == "baka":
+            url = "http://api.nekos.fun:8080/api/baka"
+            jsondata = await getdata(url)
+            data = json.loads(jsondata)
+            em = discord.Embed(title="Baka!")
+            em.set_image(url=data["image"])
+            await ctx.send(embed=em)
+        elif choice == "kiss":
+            url = "http://api.nekos.fun:8080/api/kiss"
+            jsondata = await getdata(url)
+            data = json.loads(jsondata)
+            if os.path.isdir("data") is False:
+                os.mkdir("data")
+            if os.path.isdir("data/roleplay") is False:
+                os.mkdir("data/roleplay")
+            if os.path.isfile(f"data/roleplay/{user.id}_kiss.py"):
+                sys.path.insert(0, "data/roleplay")
+                data2 = importlib.import_module(f"{str(user.id)}_kiss")
+                file = open(f"data/roleplay/{user.id}_kiss.py", "r")
+                readfile = file.read()
+                file.close()
+                kissnum2 = int(data2.kissnum)+1
+                readfile = readfile.replace(str(data2.kissnum), str(kissnum2))
+                file = open(f"data/roleplay/{user.id}_kiss.py", "w")
+                file.write(readfile)
+                file.close()
+                importlib.reload(data2)
+            else:
+                sys.path.insert(0, "data/roleplay")
+                file = open(f"data/roleplay/{user.id}_kiss.py", "w")
+                file.write("kissnum = 1")
+                file.close()
+                data2 = importlib.import_module(f"{str(user.id)}_kiss")
+            em = discord.Embed(title=f"**{ctx.author.name}** kisses **{user.name}**! Aww!")
+            em.set_image(url=data["image"])
+            if data2.kissnum == "1":
+                kissnum = "first"
+            elif data2.kissnum == "2":
+                kissnum = f"{data2.kissnum}nd"
+            elif data2.kissnum == "3":
+                kissnum = f"{data2.kissnum}rd"
+            else:
+                kissnum = f"{data2.kissnum}th"
+            em.set_footer(text=f"This is their {kissnum} kiss!")
+            await ctx.send(embed=em)  
+        elif choice == "cry":
+            url = "http://api.nekos.fun:8080/api/cry"
+            jsondata = await getdata(url)
+            data = json.loads(jsondata)
+            em = discord.Embed(title=f"**{ctx.author.name}** is crying!")
+            em.set_image(url=data["image"])
+            await ctx.send(embed=em)
+        elif choice == "pat":
+            url = "http://api.nekos.fun:8080/api/pat"
+            jsondata = await getdata(url)
+            data = json.loads(jsondata)
+            if os.path.isdir("data") is False:
+                os.mkdir("data")
+            if os.path.isdir("data/roleplay") is False:
+                os.mkdir("data/roleplay")
+            if os.path.isfile(f"data/roleplay/{user.id}_pat.py"):
+                sys.path.insert(0, "data/roleplay")
+                data2 = importlib.import_module(f"{str(user.id)}_pat")
+                file = open(f"data/roleplay/{user.id}_pat.py", "r")
+                readfile = file.read()
+                file.close()
+                patnum2 = int(data2.patnum)+1
+                readfile = readfile.replace(str(data2.patnum), str(patnum2))
+                file = open(f"data/roleplay/{user.id}_pat.py", "w")
+                file.write(readfile)
+                file.close()
+                importlib.reload(data2)
+            else:
+                sys.path.insert(0, "data/roleplay")
+                file = open(f"data/roleplay/{user.id}_pat.py", "w")
+                file.write("patnum = 1")
+                file.close()
+                data2 = importlib.import_module(f"{str(user.id)}_pat")
+            em = discord.Embed(title=f"**{ctx.author.name}** pats **{user.name}**!")
+            em.set_image(url=data["image"])
+            if data2.patnum == 1:
+                patnum = f"{data2.patnum}st"
+            elif data2.patnum == 2:
+                patnum = f"{data2.patnum}nd"
+            elif data2.patnum == 3:
+                patnum = f"{data2.patnum}rd"
+            else:
+                patnum = f"{data2.patnum}th"
+            em.set_footer(text=f"This is their {patnum} pat!")
+            await ctx.send(embed=em)  
+        else:
+            em = discord.Embed(title="Help", color=discord.Color.blue())
+            em.add_field(name=f"`{config.prefix}neko cry`", value="Cri..")
+            em.add_field(name=f"`{config.prefix}neko kiss (user id or mention)`", value="Give your special someone a kiss~")
+            em.add_field(name=f"`{config.prefix}neko pat (userid or mention)`", value="If someone's good, give them a nice pat!")
+            em.add_field(name=f"`{config.prefix}neko baka`", value="BAKA!")              
+            await ctx.send(embed=em)
 
 def setup(bot):
     bot.add_cog(Fun(bot))

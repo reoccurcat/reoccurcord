@@ -46,6 +46,17 @@ class Moderation(commands.Cog):
             await ctx.reply("This bot can only purge up to 99 messages.")
         await ctx.channel.purge(limit=amount+1)
 
+    @commands.command()
+    @commands.cooldown(1,10,commands.BucketType.user)
+    async def dmpurge(self, ctx, amount=10):
+        """Purges messages in dms, the default amount is 10"""
+        if amount >= 100:
+            await ctx.reply("This bot can only purge up to 99 messages.")
+        if isinstance(ctx.channel, discord.channel.DMChannel):
+            await ctx.channel.purge(limit=amount+1)
+        else:
+            await ctx.send("You cannot purge messages in a server using this command.")
+
 
     @commands.command()
     @commands.has_permissions(kick_members=True)

@@ -188,6 +188,30 @@ async def on_message(msg):
         await bot.process_commands(msg)
 
 @bot.event
+async def on_guild_join(guild):
+    em = discord.Embed(title="Thanks for adding me!", description="Hi! I'm reoccurcord! I'm a multipurpose bot that can do a lot for you.", color=discord.Color.blue())
+    em.add_field(name="What can you do?", value=f"I have many commands, which you can take a look at using `{config.prefix}help`!")
+    em.add_field(name="What are your most popular commands?", value="My most popular commands are the `image`, `findanime`, and `analyzeimage` commands. Try them out!")
+    em.set_footer(text="This bot is mainly developed by reoccurcat#0001 and various contributers on GitHub.")
+    em.set_author(name=bot.user.name, icon_url="https://rc.reoccur.tech/assets/icon.gif")
+    for channel in guild.text_channels:
+        if channel.name.__contains__("general"):
+            if channel.permissions_for(guild.me).send_messages:
+                await channel.send(embed=em)
+                return
+        elif channel.name.__contains__("bot"):
+            if channel.permissions_for(guild.me).send_messages:
+                await channel.send(embed=em)
+                return
+        elif channel.name.__contains__("system"):
+            if channel.permissions_for(guild.me).send_messages:
+                await channel.send(embed=em)
+                return
+    channel = guild.system_channel
+    if channel.permissions_for(guild.me).send_messages:
+        await channel.send(embed=em)
+
+@bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         em = discord.Embed(title = "Error", description = "You do not have permission to do that.", color = discord.Color.red())

@@ -12,6 +12,8 @@ import sys
 import asyncio
 import psutil
 import requests
+import aiohttp
+import json
 from discord.ext import commands
 
 sys.path.append(os.path.realpath('.'))
@@ -19,6 +21,12 @@ start_time = time.time()
 
 apikey = config.virustotal_api
 iconurl = "https://rc.reoccur.tech/assets/vt_logo.png"
+
+async def getdata(url):  # switch from requests module to aiohttp (see above for reason)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            r = await response.text()  
+    return r
 
 def vt_json_parsing(detections):
     try:
@@ -270,6 +278,64 @@ class Utils(commands.Cog):
             #await ctx.reply(embed = em)
             await msg.edit(embed=new_embed)
 
+    @commands.command()
+    async def onesecmail(self, ctx, action=None, arg1=None, arg2=None):
+        """Generate and manage a temporary email address"""
+        mailicon = "https://rc.reoccur.tech/assets/email.png"
+        if action == "generate":
+            url = "https://www.1secmail.com/api/v1/?action=genRandomMailbox"
+            jsondata = await getdata(url)
+            jsondata = json.loads(jsondata)
+            for item in jsondata:
+                jsondata2 = item
+            em = discord.Embed(title="Email Creator", description=f"Your generated temporary email is `{jsondata2}`.", color=discord.Color.blue())
+            em.set_footer(text=f"Try running '{config.prefix}onesecmail check (email)' to view your inbox!")
+            em.set_author(name="Temp Mail Manager", icon_url=mailicon)
+            await ctx.send(embed=em)
+        elif action == "check":
+            email = arg1.split("@")[0]
+            domain = arg1.split("@")[1].replace("@", "")
+            url = f"https://www.1secmail.com/api/v1/?action=getMessages&login={email}&domain={domain}"
+            jsondata = await getdata(url)
+            jsondata = json.loads(jsondata)
+            if str(jsondata) == "[]":
+                em = discord.Embed(title="Email Manager", description="You have no emails yet.", color=discord.Color.blue())
+                em.set_author(name="Temp Mail Manager", icon_url=mailicon)
+                await ctx.send(embed=em)
+            else:
+                #await ctx.send(str(jsondata))
+                #await ctx.send(type(jsondata))
+                emailnum = 1
+                em = discord.Embed(title="Email Manager", color=discord.Color.blue())
+                em.set_author(name="Temp Mail Manager", icon_url=mailicon)
+                em.set_footer(text=f"Try running '{config.prefix}onesecmail read (email) (ID)' to read a message!")
+                for email in list(jsondata):
+                    #await ctx.send(email)
+                    em.add_field(name=f"Email {str(emailnum)} Details", value=f"Sender: **"+email["from"]+"**\nSubject: **"+email["subject"]+"**\nDate: **"+email["date"]+"**\n ID: **"+str(email["id"])+"**")
+                await ctx.send(embed=em)
+        elif action == "read":
+            email = arg1.split("@")[0]
+            domain = arg1.split("@")[1].replace("@", "")
+            print(arg2)
+            url = f"https://www.1secmail.com/api/v1/?action=readMessage&login={email}&domain={domain}&id={str(arg2)}"
+            jsondata = await getdata(url)
+            print(jsondata)
+            data = json.loads(jsondata)
+            em = discord.Embed(title="Email Viewer", color=discord.Color.blue())
+            em.set_author(name="Temp Mail Manager", icon_url=mailicon)
+            em.add_field(name="Sender", value=data["from"])
+            em.add_field(name="Subject", value=data["subject"])
+            em.add_field(name="Body", value=data["textBody"], inline=False)
+            em.add_field(name="Date", value=data["date"])
+            em.add_field(name="ID", value=str(data["id"]))   
+            await ctx.send(embed=em)     
+        else:
+            em = discord.Embed(title="Help", color=discord.Color.blue())
+            em.set_author(name="Temp Mail Manager", icon_url=mailicon)
+            em.add_field(name=f"`{config.prefix}onesecmail generate`", value="Generates a temporary email.")
+            em.add_field(name=f"`{config.prefix}onesecmail check (email)`", value="Views your inbox.")
+            em.add_field(name=f"`{config.prefix}onesecmail view (email) (id)`", value="Views a message.")          
+            await ctx.send(embed=em)
 
 def setup(bot):
     bot.add_cog(Utils(bot))
