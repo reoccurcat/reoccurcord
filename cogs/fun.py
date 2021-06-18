@@ -84,13 +84,14 @@ class Fun(commands.Cog):
         # totally useful command btw
         await ctx.message.delete()
         rand = random.randint(1,3)
-        
+        em = discord.Embed(title="dead chat xd", color=discord.Color.blue())
         if rand == 1:
-            await ctx.send("https://images-ext-2.discordapp.net/external/VkYcIzxshSNt1r63cWY9zMP9aEi6XGI5BkaS-Y8l8sM/https/media.discordapp.net/attachments/841435792274751519/847285207349854208/deadchat.gif")
+            em.set_image(url="https://images-ext-2.discordapp.net/external/VkYcIzxshSNt1r63cWY9zMP9aEi6XGI5BkaS-Y8l8sM/https/media.discordapp.net/attachments/841435792274751519/847285207349854208/deadchat.gif")
         elif rand == 2:
-            await ctx.send("https://media.discordapp.net/attachments/850045054923964447/855157429968568360/tenor_1.gif")
+            em.set_image(url="https://media.discordapp.net/attachments/850045054923964447/855157429968568360/tenor_1.gif")
         elif rand == 3:
-            await ctx.send("https://tenor.com/view/chat-dead-gif-18627672")
+            em.set_image(url="https://tenor.com/view/chat-dead-gif-18627672")
+        await ctx.send(embed=em)
     
     @commands.command(aliases=["emote"])
     @commands.cooldown(1,10,commands.BucketType.user)
