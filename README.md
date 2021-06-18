@@ -1,1 +1,1 @@
-These are the files for the website, hosted at [fd.reoccur.tech](https://fd.reoccur.tech).
+These are the files for the website, hosted at [rc.reoccur.tech](https://rc.reoccur.tech).
