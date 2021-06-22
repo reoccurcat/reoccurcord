@@ -8,10 +8,7 @@ import os
 import random
 import asyncio
 import string
-#import config
-#import time
 from discord.ext import commands
-from discord.utils import get
 
 ##immune_roles variable
 #def check_immune(roles):

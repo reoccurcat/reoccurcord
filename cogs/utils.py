@@ -14,6 +14,14 @@ import psutil
 import requests
 import aiohttp
 import json
+import importlib
+import subprocess
+import globalconfig
+import shutil
+import sys
+from discord.ext import commands
+from shutil import copyfile
+from git import Repo
 from discord.ext import commands
 
 sys.path.append(os.path.realpath('.'))
@@ -336,6 +344,222 @@ class Utils(commands.Cog):
             em.add_field(name=f"`{config.prefix}onesecmail check (email)`", value="Views your inbox.")
             em.add_field(name=f"`{config.prefix}onesecmail view (email) (id)`", value="Views a message.")          
             await ctx.send(embed=em)
+
+    @commands.command()
+    @commands.cooldown(1,10,commands.BucketType.user)
+    async def admin(self, ctx, choice=None, arg1=None, arg2=None):
+        """Bot owner only commands. Run without any arguments to see the help on it."""
+        if str(ctx.message.author.id) == config.ownerID:
+            if choice == "update" or choice == "updatebot":
+                if sys.platform == "linux" or sys.platform == "linux2":
+                        try:
+                            os.mkdir('./tmp/freeupdate')
+                        except FileNotFoundError:
+                            os.rmdir('./tmp/freeupdate')
+                            os.mkdir('./tmp/freeupdate')
+                        HTTPS_REMOTE_URL = globalconfig.github_login_url
+                        DEST_NAME = './tmp/freeupdate'
+                        cloned_repo = Repo.clone_from(HTTPS_REMOTE_URL, DEST_NAME)
+                        dir_path = os.getcwd()
+                        shutil.rmtree(dir_path + "/cogs/")
+                        path = dir_path
+                        src = './tmp/freeupdate/cogs'
+                        dest = dir_path + "/cogs"
+                        destination = shutil.copytree(src, dest)
+                        copyfile('./tmp/freeupdate/bot.py', dir_path + '/bot.py')
+                        copyfile('./tmp/freeupdate/setup.py', dir_path + '/setup.py')
+                        copyfile('./tmp/freeupdate/README.md', dir_path + '/README.md')
+                        copyfile('./tmp/freeupdate/globalconfig.py', dir_path + '/globalconfig.py')
+                        copyfile('./tmp/freeupdate/start.py', dir_path + '/start.py')
+                        shutil.rmtree('./tmp/freeupdate')
+                        print("Done! Restart the bot to apply the changes!")
+                        em = discord.Embed(title = "Updated!", description = "reoccurcord updated! No error reported. Check your console to confirm this.", color = discord.Color.green())
+                        em.add_field(name = "Note", value = "The bot will now restart. If it doesn't, start it up manually. If it won't start, open an issue in reoccurcord's GitHub repository.")
+                        await ctx.reply(embed=em, mention_author=False)
+                        dir_path = os.getcwd()
+                        subprocess.Popen(['python3', f'{dir_path}/bot.py'])
+                        await ctx.bot.close()
+                elif sys.platform == "win32":
+                        em = discord.Embed(title = "`updatebot` is not yet available for Windows.", color = discord.Color.red())
+                        await ctx.reply(embed=em, mention_author=False)
+                elif sys.platform == "darwin":
+                        em = discord.Embed(title = "`updatebot` is not yet available for macOS.", color = discord.Color.red())
+                        await ctx.reply(embed=em, mention_author=False)
+            elif choice == "reloadcog" or choice == "recog" or choice == "reload":
+                args = f"cogs.{arg1}"
+                self.bot.unload_extension(args)
+                self.bot.load_extension(args)
+                em = discord.Embed(title = "Cog Reloaded", description = "`" + args + "` has been reloaded.", color = discord.Color.green())
+                await ctx.reply(embed=em, mention_author=False)
+            elif choice == "updatecheck" or choice == "checkup" or choice == "checkupdate":
+                if sys.platform == "linux" or sys.platform == "linux2" or sys.platform == "darwin":
+                    tmpdir = "./tmp"
+                elif sys.platform == "win32":
+                    tmpdir = "./Temp"
+                with open('config.py') as f:
+                    if not 'latest_version' in f.read():
+                        with open('config.py', 'a') as writeFile :
+                            writeFile.write("latest_version = 'unknown'")
+                            writeFile.close()
+                            importlib.reload(config)
+                if not os.path.exists(tmpdir + '/updatecheck'):
+                    os.makedirs(tmpdir + '/updatecheck')
+                elif os.path.exists(tmpdir + '/updatecheck'):
+                    if os.path.exists(tmpdir + '/updatecheck/.git/objects/pack'):
+                        new_name = str("unlock")
+                        os.rename(tmpdir + '/updatecheck/.git/objects/pack', new_name)
+                        shutil.rmtree('unlock')
+                    shutil.rmtree(tmpdir + '/updatecheck')
+                #os.mkdir('/tmp/freeupdate')
+                HTTPS_REMOTE_URL = globalconfig.github_login_url
+                first_embed = discord.Embed(title = "Checking for updates...", description = "reoccurcord is now checking for updates. Please be patient.", color = discord.Color.blue())
+                # send a first message with an embed
+                msg = await ctx.reply(embed=first_embed, mention_author=False)
+                DEST_NAME = tmpdir + '/updatecheck'
+                cloned_repo = Repo.clone_from(HTTPS_REMOTE_URL, DEST_NAME)
+                dir_path = os.getcwd()
+                copyfile(tmpdir + '/updatecheck/globalconfig.py', dir_path + '/updateconfig.py')
+                try:
+                    shutil.rmtree(tmpdir + '/updatecheck')
+                except os.error:
+                    embed = discord.Embed(title = "Error in removing `" + tmpdir + "/updatecheck` folder", description = 'The `' + tmpdir + '/updatecheck` folder was not able to be removed, probably due to a permissions issue.', color = discord.Color.red())
+                    await ctx.reply(embed=embed, mention_author=False) 
+                updateconfig = importlib.import_module("updateconfig")
+                if updateconfig.version > globalconfig.version:
+                    new_embed = discord.Embed(title = "Checking for updates...", description = "Checking for updates succeeded!", color = discord.Color.green())
+                    new_embed.add_field(name = "Upgrade found!", value = "It is recommended to update to version " + updateconfig.version + " from version " + globalconfig.version + " for the latest bug fixes and feature improvements.")
+                    new_embed.add_field(name = "How do I upgrade?", value = "Use `" + config.prefix + "help updatebot` for more details.")
+                    await msg.edit(embed=new_embed)
+                if updateconfig.version < globalconfig.version:
+                    new_embed = discord.Embed(title = "Checking for updates...", description = "Checking for updates succeeded!", color = discord.Color.green())
+                    new_embed.add_field(name = "Downgrade found!", value = "It is recommended to downgrade to version " + updateconfig.version + " from version " + globalconfig.version + " because something most likely broke in the latest release.")
+                    new_embed.add_field(name = "How do I downgrade?", value = "Use `" + config.prefix + "help updatebot` for more details. (The update command also downgrades the bot.)")
+                    await msg.edit(embed=new_embed)
+                if updateconfig.version == globalconfig.version:
+                    new_embed = discord.Embed(title = "Checking for updates...", description = "Checking for updates succeeded!", color = discord.Color.green())
+                    new_embed.add_field(name = "No updates found!", value = "You are up to date! This bot is at version `" + globalconfig.version + "` and the latest bot files available are at version `" + updateconfig.version + "`.")
+                    new_embed.add_field(name = "How do I upgrade?", value = "You don't need to take any action, as you are up to date already. However, you can use `" + config.prefix + "help updatebot` for more details about the upgrade/downgrade process.")
+                    await msg.edit(embed=new_embed)
+                with open('config.py', 'r') as file :
+                    filedata = file.read()
+                newdata = filedata.replace(config.latest_version, updateconfig.version)
+                with open('config.py', 'w') as file:
+                    file.write(newdata)
+                file.close()
+                importlib.reload(config)
+                os.remove(dir_path + "/updateconfig.py")
+            elif choice == "bl" or choice == "blacklist":
+                if bool(ctx.guild) == True:
+                    await ctx.message.delete()
+                if str(arg2).isdigit() == True:
+                    if str(arg1) == "remove":
+                        oldlist = config.blacklist
+                        oldlist.remove(str(arg2))
+                        importlib.reload(config)
+                        em = discord.Embed(title = "Success", description = f"Successfully removed <@!{str(arg2)}> from the blacklist.")
+                        await ctx.reply(embed = em, mention_author=False, delete_after=5.0)
+                    elif str(arg1) == "add":
+                        importlib.reload(config)
+                        with open('config.py', 'r') as file1:
+                            filedata = file1.read()
+                        oldlist = config.blacklist
+                        print(oldlist)
+                        oldlist.append(str(arg2))
+                        with open('tempconfig.py', 'w') as file:
+                            file.write(str(oldlist))
+                        with open('tempconfig.py', 'r') as file2:
+                            filedata1 = file2.read()
+                        print(str(config.blacklist))
+                        print(str(filedata1))
+                        filedata2 = filedata.replace(str(config.blacklist), str(filedata1))
+                        with open('tempconfig2.py', 'w') as file3:
+                            file3.write(filedata2)
+                    elif str(arg1) == "list":
+                        em = discord.Embed(title = "Blacklisted Users")
+                        em.add_field(name = "User IDs", value = '\n'.join(list(config.blacklist)))
+                        #em.add_field(name = "User Mentions", value = "<@!" + *config.blacklist, sep = "\n") + ">")
+                        await ctx.reply(embed = em, mention_author=False, delete_after=10.0)
+                    else:
+                        em = discord.Embed(title = "Error", description = f"`{str(arg1)}` doesn't seem to be a valid option. The valid options are `add` and `remove`.")
+                        await ctx.reply(embed = em, mention_author=False, delete_after=5.0)
+                else:
+                    em = discord.Embed(title = "Error", description = f"`{str(arg2)}` doesn't look like a User ID.")
+                    await ctx.reply(embed = em, mention_author=False, delete_after=5.0)
+            elif choice == "leaveserver" or choice == "leaveguild":
+                server = self.bot.get_guild(int(arg1))
+                await server.leave()
+                embed = discord.Embed(title = f"Left the server '{server.name}'.", color = discord.Color.green())
+                await ctx.reply(embed=embed, mention_author=False)
+            elif choice == "getchannels" or choice == "fetchchannels":
+                server = self.bot.get_guild(int(arg1))
+                embed = discord.Embed(title = f"List of channels for the server '{server.name}'", color = discord.Color.blue())
+                for channel in server.channels:
+                    embed.add_field(name = channel.name, value = channel.type)
+                await ctx.reply(embed=embed, mention_author=False)
+            elif choice == "getinvite" or choice == "fetchinvite":
+                if arg2 is not None:
+                    channelQuery = arg2
+                elif arg2 is None:
+                    channelQuery = "general"
+                server = self.bot.get_guild(int(arg1))
+                embed = discord.Embed(title = f"Generated invite for '{server.name}'", color = discord.Color.blue())
+                for channel in server.channels:
+                    if channel.name.__contains__(channelQuery) is True:
+                        #await ctx.send(channel.id)
+                        embed.add_field(name = "Channel Name", value = channel.name)
+                        embed.add_field(name = "Channel ID", value = channel.id)
+                        invite = await channel.create_invite()
+                        embed.add_field(name = "Channel Invite", value = invite)
+                        await ctx.reply(embed=embed, mention_author=False)
+                        break
+            elif choice == "getservers" or choice == "fetchservers" or choice == "servers":
+                servers = list(self.bot.guilds)
+                embed = discord.Embed(title = f"Connected on {str(len(servers))} servers:", color = discord.Color.blue())
+                embed.add_field(name = "Servers", value = '\n'.join(guild.name for guild in self.bot.guilds))
+                embed.add_field(name = "Server IDs", value = '\n'.join(str(guild.id) for guild in self.bot.guilds))
+                await ctx.reply(embed=embed, mention_author=False)
+            elif choice == "shutdownbot" or choice == "shutdown":
+                first_embed = discord.Embed(title = "Shutting down bot...", color = discord.Color.blue())
+                msg = await ctx.reply(embed=first_embed, mention_author=False)
+                new_embed = discord.Embed(title = "Shut down bot!", description = "Check your console, as it may still be running a subprocess. If it is, press `ctrl + c` on your keyboard to end the process.", color = discord.Color.green())
+                await msg.edit(embed=new_embed)
+                await ctx.bot.close()
+            elif choice == "restartbot" or choice == "restart":
+                first_embed = discord.Embed(title = "Restarting bot...", color = discord.Color.blue())
+                msg = await ctx.reply(embed=first_embed, mention_author=False)
+                dir_path = os.getcwd()
+                subprocess.Popen(['python3', f'{dir_path}/bot.py'])
+                new_embed = discord.Embed(title = "Restarted bot!", color = discord.Color.green())
+                await msg.edit(embed=new_embed)
+                await ctx.bot.close()
+            elif choice == "loadcog" or choice == "load":
+                args = f"cogs.{arg1}"
+                self.bot.load_extension(args)
+                em = discord.Embed(title = "Cog Loaded", description = "`" + args + "` has been loaded.", color = discord.Color.green())
+                await ctx.reply(embed=em, mention_author=False)
+            elif choice == "unloadcog" or choice == "unload":
+                args = f"cogs.{arg1}"
+                self.bot.unload_extension(args)
+                em = discord.Embed(title = "Cog Unloaded", description = "`" + args + "` has been unloaded.", color = discord.Color.green())
+                await ctx.reply(embed=em, mention_author=False)
+            else:
+                em = discord.Embed(title="Help", color=discord.Color.blue())
+                em.set_author(name="Admin (Bot Owner Only) Commands")
+                em.add_field(name=f"`{config.prefix}admin servers`", value="Shows the servers the bot is in")
+                em.add_field(name=f"`{config.prefix}admin getinvite (serverid) [channelname]`", value="Generates an invite for a server the bot is in")
+                em.add_field(name=f"`{config.prefix}admin getchannels (serverid)`", value="Gets a list of channels in a server")
+                em.add_field(name=f"`{config.prefix}admin reloadcog (cog)`", value="Reloads a cog")
+                em.add_field(name=f"`{config.prefix}admin unloadcog (cog)`", value="Unloads a cog")  
+                em.add_field(name=f"`{config.prefix}admin loadcog (cog)`", value="Loads a cog")
+                em.add_field(name=f"`{config.prefix}admin blacklist (add, remove, list) (userid)`", value="Manages the bot blacklist")
+                em.add_field(name=f"`{config.prefix}admin updatebot`", value="Updates the bot (Linux only)")
+                em.add_field(name=f"`{config.prefix}admin updatecheck`", value="Checks for updates to the bot") 
+                em.add_field(name=f"`{config.prefix}admin shutdownbot`", value="Shuts down the bot")  
+                em.add_field(name=f"`{config.prefix}admin restartbot`", value="Restarts the bot")    
+                await ctx.send(embed=em)
+        else:
+            em = discord.Embed(title = "This command is for the bot owner only.", color = discord.Color.red())
+            await ctx.reply(embed=em, mention_author=False)
 
 def setup(bot):
     bot.add_cog(Utils(bot))

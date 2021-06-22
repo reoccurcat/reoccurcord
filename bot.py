@@ -4,17 +4,13 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 import config
 import discord
 import aiohttp
 import globalconfig
 import time
 import asyncio
-#import datetime
-#import requests
 from discord.ext import commands
-#from typing import Mapping
 
 intents = discord.Intents.default()
 intents.members = True
@@ -53,7 +49,7 @@ class MyNewHelp(commands.MinimalHelpCommand):
         em.set_author(name=f"{bot.user.name}", icon_url="https://fd.reoccur.tech/icon.gif")
         msg = await channel.send(embed=em)
         oldpage = 0
-        emojilist = [ "🏠", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "⏹️"]
+        emojilist = [ "🏠", "1️⃣", "2️⃣", "3️⃣", "⏹️"]
         for emoji in emojilist:
             await msg.add_reaction(f"{emoji}")
         def check(reaction, user):

@@ -138,14 +138,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# VSCode Settings
-.vscode/
-
-# Cache
 cache/
-
-# Test Files
-tests/
 
 data/
 

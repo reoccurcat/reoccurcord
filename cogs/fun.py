@@ -6,9 +6,6 @@
 
 ###### SORTED IMPORTS FOR CLEANER LOOK ######
 
-from ast import alias
-
-from yarl import URL
 import config
 import random
 import aiohttp
@@ -23,10 +20,6 @@ import json
 import cryptography
 import binascii
 import aiofiles
-#import time
-#import concurrent.futures
-#import bot
-#import psutil 
 from discord.ext import commands
 from cryptography.fernet import Fernet
 from bs4 import BeautifulSoup
@@ -51,6 +44,17 @@ async def getdata(url):  # switch from requests module to aiohttp (see above for
         async with session.get(url) as response:
             r = await response.text()  
     return r
+
+async def downloadimage(url):
+    if not os.path.exists("cache"):
+        os.mkdir("cache")
+    tempimage = f"cache/tempimage{random.randint(1, 10)}.jpg"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            f = await aiofiles.open(tempimage, mode='wb')
+            await f.write(await response.read())
+            await f.close()
+    return tempimage
 
 async def getunsafe(url, censor=None):
     threshold = 25
@@ -733,6 +737,108 @@ class Fun(commands.Cog):
             em.add_field(name=f"`{config.prefix}neko pat (userid or mention)`", value="If someone's good, give them a nice pat!")
             em.add_field(name=f"`{config.prefix}neko baka`", value="BAKA!")              
             await ctx.send(embed=em)
+
+    @commands.command()
+    @commands.cooldown(1,15,commands.BucketType.user)  
+    async def shortenurl(self, ctx, url=None, endtext=None):
+        """Use the command to see information on how to use it"""
+        if endtext is not None:
+            url = f"https://api.1pt.co/addURL?long={url}&short={endtext}"
+        else:
+            url = f"https://api.1pt.co/addURL?long={url}"
+        jsondata = await getdata(url)
+        data = json.loads(jsondata)
+        em = discord.Embed(title="URL Shortened!", color=discord.Color.green())
+        em.set_author(name="1pt.co", icon_url="https://raw.githubusercontent.com/paramt/1pt/master/resources/favicon/android-chrome-512x512.png")
+        em.add_field(name="Shortened URL", value=f"https://1pt.co/{data['short']}")
+        await ctx.reply(embed=em, mention_author=False)
+
+    @commands.command()
+    @commands.cooldown(1,15,commands.BucketType.user)  
+    async def quote(self, ctx):
+        """Fetches a random quote"""
+        url = "https://api.fisenko.net/quotes"
+        jsondata = await getdata(url)
+        data = json.loads(jsondata)
+        em = discord.Embed(title="Here's a quote for you:", description=f'"{data["text"]}" - {data["author"]}', color=discord.Color.green())
+        await ctx.reply(embed=em, mention_author=False)
+    
+    @commands.command()
+    @commands.cooldown(1,15,commands.BucketType.user)  
+    async def compressimg(self, ctx, imgurl):
+        """Use the command to see information on how to use it"""
+        url = f"https://api.resmush.it/ws.php?img={imgurl}"
+        jsondata = await getdata(url)
+        data = json.loads(jsondata)
+        em = discord.Embed(title="Here's your compressed image!", color=discord.Color.green())
+        em.set_author(name="ReSmush.it Image Compression")
+        em.add_field(name="Source Size", value=f"`{str(data['src_size'])}` bytes")
+        em.add_field(name="New Size", value=f"`{str(data['dest_size'])}` bytes")
+        em.set_image(url=str(data["dest"]))
+        await ctx.reply(embed=em, mention_author=False)
+
+    @commands.command()
+    @commands.cooldown(1,15,commands.BucketType.user)  
+    async def unsplash(self, ctx, resolution=None):
+        """Gets a random unsplash image"""
+        em = discord.Embed(color=discord.Color.green())
+        em.set_author(name="Lorem Picsum")
+        randomnum = random.randint(1, 999999999999999)
+        if resolution is not None:
+            resolution = str(resolution)
+            res1 = resolution.split("x")[0]
+            res2 = resolution.split("x")[1]
+            res2 = res2.replace("x", "")
+            url = f"https://picsum.photos/{res1}/{res2}.jpg?random={str(randomnum)}"
+        else:
+            url = f"https://picsum.photos/1080/720.jpg?random={str(randomnum)}"
+        filepath = await downloadimage(url)
+        file = discord.File(filepath, filename="lorempicsum.jpg")
+        em.set_image(url="attachment://lorempicsum.jpg")
+        await ctx.reply(file=file, embed=em, mention_author=False)
+        os.remove(filepath)
+
+    @commands.command()
+    @commands.cooldown(1,15,commands.BucketType.user)  
+    async def doesnotexist(self, ctx, choice=None):
+        """Gets a random unsplash image"""
+        if choice == "person":
+            em = discord.Embed(color=discord.Color.green())
+            em.set_author(name="ThisPersonDoesNotExist")
+            url = "https://thispersondoesnotexist.com/image"
+            filepath = await downloadimage(url)
+            file = discord.File(filepath, filename="persondoesntexist.jpg")
+            em.set_image(url="attachment://persondoesntexist.jpg")
+            em.set_footer(text="No, seriously, it doesn't exist.")
+            await ctx.reply(file=file, embed=em, mention_author=False)
+            os.remove(filepath)
+        elif choice == "cat":
+            em = discord.Embed(color=discord.Color.green())
+            em.set_author(name="ThisCatDoesNotExist")
+            url = "https://thiscatdoesnotexist.com/"
+            filepath = await downloadimage(url)
+            file = discord.File(filepath, filename="persondoesntexist.jpg")
+            em.set_image(url="attachment://persondoesntexist.jpg")
+            em.set_footer(text="No, seriously, they don't exist.")
+            await ctx.reply(file=file, embed=em, mention_author=False)
+            os.remove(filepath)
+        else:
+            em = discord.Embed(title="Help", color=discord.Color.blue())
+            em.set_author(name="This(Thing)DoesNotExist")
+            em.add_field(name=f"`{config.prefix}doesnotexist person`", value="Generates a person that doesn't exist")
+            em.add_field(name=f"`{config.prefix}doesnotexist cat`", value="Generates a cat that doesn't exist")
+            await ctx.reply(embed=em, mention_author=False)
+
+    @commands.command()
+    @commands.cooldown(1,15,commands.BucketType.user)  
+    async def lengthenurl(self, ctx, url):
+        """Á̴̧̡̢̜̝͕͓̅͜A̷̻̻̞̲̮̥̘̹͒̅͑̆͝Á̶̡̳͉̼̘̥̥̠̞͖͉̱̖̭̍A̶̖͕̦͍͕̝͂̋̎̎̈́͛̃̒̃A̵̢͔̼̯͖͇̪͖̹̗̗̠͌̀̍͋̊̕ͅẢ̶̛̦̖̮̜̪̭̖̜̱̲̩̬͐̂͆̔̎͗̆̄A̷̧̡̟̣̳̠̞͙̯̤̺̬͉̭͔̭͉͒͆̐̕A̷̜̙̜̦̮̣̯̱̫͍͇̰̙̋͆́̏͑̄̑̈́̂̏̐̅͆͘̚ͅÀ̶̧̢̛̲̮̠͈̞̜̻̈́̈́͆̃̊̈̎̄̿̍͝A̶̧̬̥̹͇͉̞͈̗͍̝͋̉̓̂Ą̶̜̳̖̈Ą̴̛̭͔̬̩̹̬̙̦͈̹̳͔̜͖̬̋̉̀̇̀̅̀̓́̃͊̀͛̍̕A̶̧̛̯̖͙͔̯̪̦̿͆̉̌̓̒̄̿̀A̷̡̙͇̰̥͎͌̑̈́̎͆̽̈́̈́̋A̷̦͚̤͓͈͈̬̳̩͖͓̺͔̙̪̦̐̈̓̈́̏̈͛͜A̸̢͚͓̩̦̮͔͇͎̻̺̠͕͔̖̹͊͛A̷̧̛̟͍̼̜̱̙̲͉͔͇͐̅̈́̌̓͐͐̋̆͐̒͛̚͘͝ͅĀ̶̙̥̤̜̹̰͐̈́̊̈́͜ͅA̵̮̜̗̟͎͗̐͠A̸͙̖̮̟͉͚̬̩̬̖̭̠̔͝A̶̜̽̒̀̈́̍̊͋̈́̋̊̓̒̀͝͝͝͝A̷͕̫̹̳̠̖̜̮̯̻͇͖͚̿͗͘Ȁ̷̲̣̘̭͌̎̄͒̃͆̌̾̽̇̓͊͝Ȃ̴̛̛͉͓̒̑͋̔̇̀̎̽̊̅̅̀̕̕A̷̧̡̺͉̺͇͚͓̺̞̫̖͍̞̥̰̍̈̀̌͐͗̍́̈́̒̈́̈́͠ͅÂ̶̧̯͇̜̙̭̟͍̮̺̭͑A̶̛̞̘̽̉̑̉̾͋̏̏̅̑̽͋͗̍A̷̰͋̑̆̿͋͊̓̐͝A̴̞̬̬͓̗̠̫͉̜̪͎̝̎̀̿̌͐̀̍͛̄͜ͅĄ̶̢̼̦̠͍͈̈̂͋̀̍͝Ã̴͙͈̯͈̮̤͐̃͒̈́̑̇Ą̸̺͓͕̘̥̖̱͎̑̾̊ͅȀ̷̧̨̬̺͚̫̠̮͕̞̺̗͖͈̥͔͉̾Ậ̵͇͎̝͚̥̞̦̺͋͊Ä̸̧̧̘͍͎͉̝͎͕͐̏̎͂͐̊̉̍̉̕Ä̸̢̢̨̨̲̟̯̣̮͉̘̰͍̝̙́̌̅̆̍̄̈́̓̌͜ͅA̴̹̥̩͔͍̝̩͍̼̪͋͜Ā̵̜͗̓̎̒̄̓̔̇͐͛͐̈́̍͌ͅA̴̡̢̛̙͎̗̖̫̙̼̻̜̬͈̒̀͌̋̋͌̈́͌̑̄̍̅͝͠A̷̩̣̬̹̪͘͠ͅȂ̸̡̛̫̱̩͎̮̻̗̾͋̇͌͒̒̈́̌̊̾̓͑ͅĄ̵̨̫̣͍͐͂͌̒̓͐͌͘Ą̵̛͚̘̩̙̜̑̇̄̈́̂̋͋̈́̇̔͑̚͘͘͜͝Ä̵̢̢̹̙͚͕̖͍̻̖͎̰͕́̇̕͜Ä̵̡̖̲̱͇̊̐̋̔̎͆̐̌͒̈́̊̾̚͝Ą̵̲͎̹͉͓͚͈̝̝̦̠̦̤̅̓́̓͗̔̏͑̊͘A̷̺̺̝̬̮͈̹̩͕̖̙̲̦̙̗̽́́̃̊̎̄͆̇͂̀͗͗̚͘͝͝Ă̶̧̰̼͙̑̽A̴̢̨̜͕͙͚̤̫̙̫̰̠͚͚̫̔͗̕Ä̴͇̼̩̜̫͖́̿̏́͆̾̾͛́͂͐̽͘̚͘̕͝A̶̳͎͚̣̼͒̊̂̃̐̓̚̕ͅA̵͑͛̚͠"""
+        url = f"https://api.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com/a?url={url}"
+        data = await getdata(url)
+        em = discord.Embed(title="U̵͈͐̈Ŗ̶̈́̏͆͐Ĺ̴́̔̍͜ ̴͝ͅL̷̯̜̈̈̊̈́͜e̶͔̗͇͐̈́͐̃n̴̻̫̓g̴̫̼͉̿̚͠͝t̸͔͚͚̆̊̉h̸̛͇͆͑e̷̢͈̙͌̋ͅṇ̸̢̝̈́̒̚e̸̫̻͑͂d̴͕̲̽͆!̷̞̯̺̃̂", color=discord.Color.green())
+        em.set_author(name="aaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com")
+        em.add_field(name="L̶̳̠͇̄̕ȅ̸̪͎̯̍̎n̶͕̦̺͚͕̊̆g̵̢̨̝̓̎̐t̷̛͙̪̗̼̏͆̾̌͜͠h̷̡͖͍́͘ẻ̴̩̮̘͍̟̈́̽̎̓̑n̷̜̥̰͉̊̚ͅȩ̵̛̠ͅd̷̞̹͙͊̿̂̒ ̸͈͔͈͎̫̙̈́U̵͚̹̜̼̾̿͂́R̶̨̨̧͎͔̘͂̔̉L̸̬̯̬̫͎̝̊̄̕", value=f"`{str(data)}`")
+        await ctx.reply(embed=em, mention_author=False)
 
 def setup(bot):
     bot.add_cog(Fun(bot))
