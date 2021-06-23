@@ -350,7 +350,7 @@ class Utils(commands.Cog):
     async def admin(self, ctx, choice=None, arg1=None, arg2=None):
         """Bot owner only commands. Run without any arguments to see the help on it."""
         if str(ctx.message.author.id) == config.ownerID:
-            if choice == "update" or choice == "updatebot":
+            if choice == "update":
                 if sys.platform == "linux" or sys.platform == "linux2":
                         try:
                             os.mkdir('./tmp/freeupdate')
@@ -373,7 +373,7 @@ class Utils(commands.Cog):
                         copyfile('./tmp/freeupdate/start.py', dir_path + '/start.py')
                         shutil.rmtree('./tmp/freeupdate')
                         print("Done! Restart the bot to apply the changes!")
-                        em = discord.Embed(title = "Updated!", description = "reoccurcord updated! No error reported. Check your console to confirm this.", color = discord.Color.green())
+                        em = discord.Embed(title = "Updated!", description = f"{self.bot.name} updated! No error reported. Check your console to confirm this.", color = discord.Color.green())
                         em.add_field(name = "Note", value = "The bot will now restart. If it doesn't, start it up manually. If it won't start, open an issue in reoccurcord's GitHub repository.")
                         await ctx.reply(embed=em, mention_author=False)
                         dir_path = os.getcwd()
@@ -385,13 +385,13 @@ class Utils(commands.Cog):
                 elif sys.platform == "darwin":
                         em = discord.Embed(title = "`updatebot` is not yet available for macOS.", color = discord.Color.red())
                         await ctx.reply(embed=em, mention_author=False)
-            elif choice == "reloadcog" or choice == "recog" or choice == "reload":
+            elif choice == "reload":
                 args = f"cogs.{arg1}"
                 self.bot.unload_extension(args)
                 self.bot.load_extension(args)
                 em = discord.Embed(title = "Cog Reloaded", description = "`" + args + "` has been reloaded.", color = discord.Color.green())
                 await ctx.reply(embed=em, mention_author=False)
-            elif choice == "updatecheck" or choice == "checkup" or choice == "checkupdate":
+            elif choice == "updatecheck":
                 if sys.platform == "linux" or sys.platform == "linux2" or sys.platform == "darwin":
                     tmpdir = "./tmp"
                 elif sys.platform == "win32":
@@ -412,7 +412,7 @@ class Utils(commands.Cog):
                     shutil.rmtree(tmpdir + '/updatecheck')
                 #os.mkdir('/tmp/freeupdate')
                 HTTPS_REMOTE_URL = globalconfig.github_login_url
-                first_embed = discord.Embed(title = "Checking for updates...", description = "reoccurcord is now checking for updates. Please be patient.", color = discord.Color.blue())
+                first_embed = discord.Embed(title = "Checking for updates...", description = f"{self.bot.name} is now checking for updates. Please be patient.", color = discord.Color.blue())
                 # send a first message with an embed
                 msg = await ctx.reply(embed=first_embed, mention_author=False)
                 DEST_NAME = tmpdir + '/updatecheck'
@@ -448,7 +448,7 @@ class Utils(commands.Cog):
                 file.close()
                 importlib.reload(config)
                 os.remove(dir_path + "/updateconfig.py")
-            elif choice == "bl" or choice == "blacklist":
+            elif choice == "blacklist":
                 if bool(ctx.guild) == True:
                     await ctx.message.delete()
                 if str(arg2).isdigit() == True:
@@ -485,18 +485,21 @@ class Utils(commands.Cog):
                 else:
                     em = discord.Embed(title = "Error", description = f"`{str(arg2)}` doesn't look like a User ID.")
                     await ctx.reply(embed = em, mention_author=False, delete_after=5.0)
-            elif choice == "leaveserver" or choice == "leaveguild":
-                server = self.bot.get_guild(int(arg1))
+            elif choice == "leaveserver":
+                if arg1 is None:
+                    server = self.bot.get_guild(int(ctx.guild.id))
+                else:
+                    server = self.bot.get_guild(int(arg1))
                 await server.leave()
                 embed = discord.Embed(title = f"Left the server '{server.name}'.", color = discord.Color.green())
                 await ctx.reply(embed=embed, mention_author=False)
-            elif choice == "getchannels" or choice == "fetchchannels":
+            elif choice == "getchannels":
                 server = self.bot.get_guild(int(arg1))
                 embed = discord.Embed(title = f"List of channels for the server '{server.name}'", color = discord.Color.blue())
                 for channel in server.channels:
                     embed.add_field(name = channel.name, value = channel.type)
                 await ctx.reply(embed=embed, mention_author=False)
-            elif choice == "getinvite" or choice == "fetchinvite":
+            elif choice == "getinvite":
                 if arg2 is not None:
                     channelQuery = arg2
                 elif arg2 is None:
@@ -508,23 +511,23 @@ class Utils(commands.Cog):
                         #await ctx.send(channel.id)
                         embed.add_field(name = "Channel Name", value = channel.name)
                         embed.add_field(name = "Channel ID", value = channel.id)
-                        invite = await channel.create_invite()
+                        invite = await channel.create_invite(unique = False)
                         embed.add_field(name = "Channel Invite", value = invite)
                         await ctx.reply(embed=embed, mention_author=False)
                         break
-            elif choice == "getservers" or choice == "fetchservers" or choice == "servers":
+            elif choice == "servers":
                 servers = list(self.bot.guilds)
                 embed = discord.Embed(title = f"Connected on {str(len(servers))} servers:", color = discord.Color.blue())
                 embed.add_field(name = "Servers", value = '\n'.join(guild.name for guild in self.bot.guilds))
                 embed.add_field(name = "Server IDs", value = '\n'.join(str(guild.id) for guild in self.bot.guilds))
                 await ctx.reply(embed=embed, mention_author=False)
-            elif choice == "shutdownbot" or choice == "shutdown":
+            elif choice == "shutdown":
                 first_embed = discord.Embed(title = "Shutting down bot...", color = discord.Color.blue())
                 msg = await ctx.reply(embed=first_embed, mention_author=False)
                 new_embed = discord.Embed(title = "Shut down bot!", description = "Check your console, as it may still be running a subprocess. If it is, press `ctrl + c` on your keyboard to end the process.", color = discord.Color.green())
                 await msg.edit(embed=new_embed)
                 await ctx.bot.close()
-            elif choice == "restartbot" or choice == "restart":
+            elif choice == "restart":
                 first_embed = discord.Embed(title = "Restarting bot...", color = discord.Color.blue())
                 msg = await ctx.reply(embed=first_embed, mention_author=False)
                 dir_path = os.getcwd()
@@ -532,12 +535,12 @@ class Utils(commands.Cog):
                 new_embed = discord.Embed(title = "Restarted bot!", color = discord.Color.green())
                 await msg.edit(embed=new_embed)
                 await ctx.bot.close()
-            elif choice == "loadcog" or choice == "load":
+            elif choice == "load":
                 args = f"cogs.{arg1}"
                 self.bot.load_extension(args)
                 em = discord.Embed(title = "Cog Loaded", description = "`" + args + "` has been loaded.", color = discord.Color.green())
                 await ctx.reply(embed=em, mention_author=False)
-            elif choice == "unloadcog" or choice == "unload":
+            elif choice == "unload":
                 args = f"cogs.{arg1}"
                 self.bot.unload_extension(args)
                 em = discord.Embed(title = "Cog Unloaded", description = "`" + args + "` has been unloaded.", color = discord.Color.green())
@@ -548,14 +551,14 @@ class Utils(commands.Cog):
                 em.add_field(name=f"`{config.prefix}admin servers`", value="Shows the servers the bot is in")
                 em.add_field(name=f"`{config.prefix}admin getinvite (serverid) [channelname]`", value="Generates an invite for a server the bot is in")
                 em.add_field(name=f"`{config.prefix}admin getchannels (serverid)`", value="Gets a list of channels in a server")
-                em.add_field(name=f"`{config.prefix}admin reloadcog (cog)`", value="Reloads a cog")
-                em.add_field(name=f"`{config.prefix}admin unloadcog (cog)`", value="Unloads a cog")  
-                em.add_field(name=f"`{config.prefix}admin loadcog (cog)`", value="Loads a cog")
+                em.add_field(name=f"`{config.prefix}admin reload (cog)`", value="Reloads a cog")
+                em.add_field(name=f"`{config.prefix}admin unload (cog)`", value="Unloads a cog")  
+                em.add_field(name=f"`{config.prefix}admin load (cog)`", value="Loads a cog")
                 em.add_field(name=f"`{config.prefix}admin blacklist (add, remove, list) (userid)`", value="Manages the bot blacklist")
-                em.add_field(name=f"`{config.prefix}admin updatebot`", value="Updates the bot (Linux only)")
+                em.add_field(name=f"`{config.prefix}admin update`", value="Updates the bot (Linux only)")
                 em.add_field(name=f"`{config.prefix}admin updatecheck`", value="Checks for updates to the bot") 
-                em.add_field(name=f"`{config.prefix}admin shutdownbot`", value="Shuts down the bot")  
-                em.add_field(name=f"`{config.prefix}admin restartbot`", value="Restarts the bot")    
+                em.add_field(name=f"`{config.prefix}admin shutdown`", value="Shuts down the bot")  
+                em.add_field(name=f"`{config.prefix}admin restart`", value="Restarts the bot")    
                 await ctx.send(embed=em)
         else:
             em = discord.Embed(title = "This command is for the bot owner only.", color = discord.Color.red())

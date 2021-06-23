@@ -388,7 +388,7 @@ class Fun(commands.Cog):
             f = open(f"cache/{query}_web.py", "w")
             f.write(f"cache = {allresults}")
             f.close()
-        em = discord.Embed(title="Web Search Results", description=f"reoccurcord found **{len(allresults)}** results.")
+        em = discord.Embed(title="Web Search Results", description=f"{self.bot.name} found **{len(allresults)}** results.")
         try:
             em.add_field(name="URLs Returned", value="\n".join(allresults))
         except Exception:
@@ -772,8 +772,11 @@ class Fun(commands.Cog):
         data = json.loads(jsondata)
         em = discord.Embed(title="Here's your compressed image!", color=discord.Color.green())
         em.set_author(name="ReSmush.it Image Compression")
-        em.add_field(name="Source Size", value=f"`{str(data['src_size'])}` bytes")
-        em.add_field(name="New Size", value=f"`{str(data['dest_size'])}` bytes")
+        try:
+            em.add_field(name="Source Size", value=f"`{str(data['src_size'])}` bytes")
+            em.add_field(name="New Size", value=f"`{str(data['dest_size'])}` bytes")
+        except:
+            pass
         em.set_image(url=str(data["dest"]))
         await ctx.reply(embed=em, mention_author=False)
 

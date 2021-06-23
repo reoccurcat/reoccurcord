@@ -45,7 +45,7 @@ class MyNewHelp(commands.MinimalHelpCommand):
                     commandlist.append("\n".join(command_signatures))
                     embed.add_field(name=cog_name, value="\n".join(command_signatures))
         channel = self.get_destination()
-        em = discord.Embed(title="Command List", description="This is the command list of reoccurcord's commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
+        em = discord.Embed(title="Command List", description=f"This is the command list of {self.bot.name}'s commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
         em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
         msg = await channel.send(embed=em)
         oldpage = 0
@@ -88,7 +88,7 @@ class MyNewHelp(commands.MinimalHelpCommand):
                     oldpage = 4
                 elif str(reaction.emoji) == "🏠":
                     page = 5
-                    em = discord.Embed(title="Command List", description="This is the command list of reoccurcord's commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
+                    em = discord.Embed(title="Command List", description=f"This is the command list of {self.bot.name}'s commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
                     await msg.edit(embed=em)
                     await msg.remove_reaction(reaction, user)
@@ -109,7 +109,7 @@ class MyNewHelp(commands.MinimalHelpCommand):
                 await msg.edit(embed=em)
                 await asyncio.sleep(5) 
                 if oldpage == 0:
-                    em = discord.Embed(title="Command List", description="This is the command list of reoccurcord's commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
+                    em = discord.Embed(title="Command List", description=f"This is the command list of {self.bot.name}'s commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
                     await msg.edit(embed=em)
                 else:
@@ -185,7 +185,7 @@ async def on_message(msg):
 
 @bot.event
 async def on_guild_join(guild):
-    em = discord.Embed(title="Thanks for adding me!", description="Hi! I'm reoccurcord! I'm a multipurpose bot that can do a lot for you.", color=discord.Color.blue())
+    em = discord.Embed(title="Thanks for adding me!", description=f"Hi! I'm {bot.name}! I'm a multipurpose bot that can do a lot for you.", color=discord.Color.blue())
     em.add_field(name="What can you do?", value=f"I have many commands, which you can take a look at using `{config.prefix}help`!")
     em.add_field(name="What are your most popular commands?", value="My most popular commands are the `image`, `findanime`, and `analyzeimage` commands. Try them out!")
     em.set_footer(text="This bot is mainly developed by reoccurcat#0001 and various contributers on GitHub.")
