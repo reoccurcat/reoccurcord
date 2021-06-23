@@ -373,7 +373,7 @@ class Utils(commands.Cog):
                         copyfile('./tmp/freeupdate/start.py', dir_path + '/start.py')
                         shutil.rmtree('./tmp/freeupdate')
                         print("Done! Restart the bot to apply the changes!")
-                        em = discord.Embed(title = "Updated!", description = f"{self.bot.name} updated! No error reported. Check your console to confirm this.", color = discord.Color.green())
+                        em = discord.Embed(title = "Updated!", description = f"{self.bot.user.name} updated! No error reported. Check your console to confirm this.", color = discord.Color.green())
                         em.add_field(name = "Note", value = "The bot will now restart. If it doesn't, start it up manually. If it won't start, open an issue in reoccurcord's GitHub repository.")
                         await ctx.reply(embed=em, mention_author=False)
                         dir_path = os.getcwd()
@@ -412,7 +412,7 @@ class Utils(commands.Cog):
                     shutil.rmtree(tmpdir + '/updatecheck')
                 #os.mkdir('/tmp/freeupdate')
                 HTTPS_REMOTE_URL = globalconfig.github_login_url
-                first_embed = discord.Embed(title = "Checking for updates...", description = f"{self.bot.name} is now checking for updates. Please be patient.", color = discord.Color.blue())
+                first_embed = discord.Embed(title = "Checking for updates...", description = f"{self.bot.user.name} is now checking for updates. Please be patient.", color = discord.Color.blue())
                 # send a first message with an embed
                 msg = await ctx.reply(embed=first_embed, mention_author=False)
                 DEST_NAME = tmpdir + '/updatecheck'

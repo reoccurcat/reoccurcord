@@ -388,7 +388,7 @@ class Fun(commands.Cog):
             f = open(f"cache/{query}_web.py", "w")
             f.write(f"cache = {allresults}")
             f.close()
-        em = discord.Embed(title="Web Search Results", description=f"{self.bot.name} found **{len(allresults)}** results.")
+        em = discord.Embed(title="Web Search Results", description=f"{self.bot.user.name} found **{len(allresults)}** results.")
         try:
             em.add_field(name="URLs Returned", value="\n".join(allresults))
         except Exception:
