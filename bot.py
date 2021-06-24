@@ -17,7 +17,7 @@ intents.members = True
 
 description = ""
 
-bot = commands.Bot(command_prefix=config.prefix, description=description, intents=intents, activity=discord.Game(name=f'v{globalconfig.version} | {config.prefix}help'))
+bot = commands.Bot(command_prefix=config.prefix, description=description, intents=intents)
 
 #bot.remove_command('help')
 
@@ -142,6 +142,13 @@ async def resetcommands():
         mostusedcommands = []
         time.sleep(21600)
 
+async def status_task():
+    while True:
+        await bot.change_presence(status=discord.Status.idle, activity=discord.Game(f"in {len(bot.guilds)} servers with {len(bot.users)} users"))
+        await asyncio.sleep(20)
+        await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name=f"for {config.prefix}help | v{str(globalconfig.version)}"))
+        await asyncio.sleep(20)
+
 @bot.event
 async def on_ready():
     # What gets printed in the terminal when the bot is succesfully logged in
@@ -160,6 +167,7 @@ async def on_ready():
     except AttributeError:
         user = bot.get_user(int(config.ownerID))
         await user.send("The bot is back online.")
+    bot.loop.create_task(status_task())
     #await resetcommands()
 
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
