@@ -19,6 +19,8 @@ description = ""
 
 bot = commands.Bot(command_prefix=config.prefix, description=description, intents=intents)
 
+statusloop = False
+
 #bot.remove_command('help')
 
 class MyNewHelp(commands.MinimalHelpCommand):
@@ -144,6 +146,7 @@ async def resetcommands():
 
 async def status_task():
     while True:
+        statusloop = True
         await bot.change_presence(status=discord.Status.idle, activity=discord.Game(f"in {len(bot.guilds)} servers with {len(bot.users)} users"))
         await asyncio.sleep(20)
         await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name=f"for {config.prefix}help | v{str(globalconfig.version)}"))
@@ -167,7 +170,8 @@ async def on_ready():
     except AttributeError:
         user = bot.get_user(int(config.ownerID))
         await user.send("The bot is back online.")
-    bot.loop.create_task(status_task())
+    if statusloop is False:
+        bot.loop.create_task(status_task())
     #await resetcommands()
 
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
