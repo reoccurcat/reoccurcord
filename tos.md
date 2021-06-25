@@ -1,5 +1,5 @@
 # Terms of Service
-## Please read these terms carefully before using FreeDiscord operated by reoccurcat.
+## Please read these terms carefully before using reoccurcord operated by reoccurcat.
 
 ### Conditions of Use
 

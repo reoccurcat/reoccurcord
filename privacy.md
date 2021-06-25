@@ -2,7 +2,7 @@
 
 ## Effective Date: 5/31/2021
 
-### This privacy notice discloses the privacy practices for (website address). This privacy notice applies solely to information collected by this website, except where stated otherwise. It will notify you of the following:
+### This privacy notice discloses the privacy practices for **https://rc.reoccur.tech**. This privacy notice applies solely to information collected by this website, except where stated otherwise. It will notify you of the following:
 
 What information we collect;
 With whom it is shared;
