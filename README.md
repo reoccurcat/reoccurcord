@@ -3,8 +3,8 @@
 [![Stars](https://img.shields.io/github/stars/reoccurcat/reoccurcord?style=social)](https://github.com/reoccurcat/reoccurcord/stargazers)
 [![Discord](https://img.shields.io/discord/848307144159395850)](https://discord.gg/xzPRBF9bhd)
 [![License](https://img.shields.io/github/license/reoccurcat/reoccurcord)](https://github.com/reoccurcat/reoccurcord/blob/main/LICENSE)
-[![Commits](https://img.shields.io/github/commit-activity/w/reoccurcat/reoccurcord)](https://github.com/reoccurcat/reoccurcord/commits/main)
-[![Maintained](https://img.shields.io/maintenance/yes/2021)]
+[![Commits](https://img.shields.io/github/commit-activity/m/reoccurcat/freediscord)](https://github.com/reoccurcat/reoccurcord/commits/main)
+![Maintained](https://img.shields.io/maintenance/yes/2021)
 
 # reoccurcord
 ## Welcome to the official GitHub page of the reoccurcord bot!
