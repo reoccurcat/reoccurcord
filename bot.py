@@ -90,7 +90,7 @@ class MyNewHelp(commands.MinimalHelpCommand):
                     oldpage = 4
                 elif str(reaction.emoji) == "🏠":
                     page = 5
-                    em = discord.Embed(title="Command List", description=f"This is the command list of {self.self.bot.user.name}'s commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
+                    em = discord.Embed(title="Command List", description=f"This is the command list of {bot.user.name}'s commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
                     await msg.edit(embed=em)
                     await msg.remove_reaction(reaction, user)
