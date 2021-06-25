@@ -142,4 +142,6 @@ cache/
 
 data/
 
-config.py
+tmp/
+
+/config.py

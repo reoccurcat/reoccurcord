@@ -29,6 +29,7 @@ from nudenet import NudeDetector
 
 classifier = NudeClassifier()
 detector = NudeDetector()
+sys.path.insert(0, "data/roleplay")
 
 ##############################################
 
@@ -610,31 +611,29 @@ class Fun(commands.Cog):
                 os.mkdir("data")
             if os.path.isdir("data/roleplay") is False:
                 os.mkdir("data/roleplay")
-            if os.path.isfile(f"data/slap/{user.id}.py"):
-                sys.path.insert(0, "data/roleplay")
+            if os.path.isfile(f"data/roleplay/{user.id}_slap.py"):
                 data2 = importlib.import_module(f"{str(user.id)}_slap")
                 file = open(f"data/roleplay/{user.id}_slap.py", "r")
                 readfile = file.read()
                 file.close()
-                slapnum2 = int(data2.slapnum)+1
-                readfile = readfile.replace(str(data2.slapnum), str(slapnum2))
+                slapnum2 = int(data2.slapnum) + 1
+                readfile2 = readfile.replace(str(data2.slapnum), str(slapnum2))
                 file = open(f"data/roleplay/{user.id}_slap.py", "w")
-                file.write(readfile)
+                file.write(readfile2)
                 file.close()
                 importlib.reload(data2)
             else:
-                sys.path.insert(0, "data/roleplay")
                 file = open(f"data/roleplay/{user.id}_slap.py", "w")
                 file.write("slapnum = 1")
                 file.close()
                 data2 = importlib.import_module(f"{str(user.id)}_slap")
             em = discord.Embed(title=f"**{ctx.author.name}** slaps **{user.name}**!")
             em.set_image(url=data["image"])
-            if data2.slapnum == "1":
+            if data2.slapnum == 1:
                 slapnum = "first"
-            elif data2.slapnum == "2":
+            elif data2.slapnum == 2:
                 slapnum = f"{data2.slapnum}nd"
-            elif data2.slapnum == "3":
+            elif data2.slapnum == 3:
                 slapnum = f"{data2.slapnum}rd"
             else:
                 slapnum = f"{data2.slapnum}th"
