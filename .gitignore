@@ -144,4 +144,6 @@ data/
 
 tmp/
 
-/config.py
+config.py
+
+tests/

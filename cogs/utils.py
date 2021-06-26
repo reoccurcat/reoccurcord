@@ -611,5 +611,33 @@ class Utils(commands.Cog):
             em = discord.Embed(title = "This command is for the bot owner only.", color = discord.Color.red())
             await ctx.reply(embed=em, mention_author=False)
 
+    @commands.command()
+    async def mostusedcmds(self, ctx, amount=3):
+        em = discord.Embed(title="Most Used Commands", color=discord.Color.blue())
+        newlist = self.bot.commandsran
+        test = []
+        dictionary = {}
+        def sortfunc(e):
+            return e['amount']
+        for item in newlist:
+            dictionary = {}
+            counted = newlist.count(item)
+            dictionary["command"] = item
+            dictionary["amount"] = int(counted)
+            if dictionary not in test:
+                test.append(dictionary)
+            del dictionary
+        test.sort(key=sortfunc, reverse=True) 
+        #print(test)
+        number = 0
+        for item in test:
+            if number != amount:
+                try:
+                    em.add_field(name=str(item["command"]), value="Amount of times ran: "+str(item["amount"]))
+                    number = number+1
+                except:
+                    break
+        await ctx.send(embed=em)
+
 def setup(bot):
     bot.add_cog(Utils(bot))

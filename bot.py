@@ -21,6 +21,8 @@ bot = commands.Bot(command_prefix=config.prefix, description=description, intent
 
 statusloop = False
 
+bot.commandsran = []
+
 #bot.remove_command('help')
 
 class MyNewHelp(commands.MinimalHelpCommand):
@@ -186,14 +188,20 @@ for filename in os.listdir('./cogs'):
 
 @bot.event
 async def on_message(msg):
-    if str(msg.author.id) in config.blacklist:
-        for command in bot.commands:
+    for command in bot.commands:
+        try:
             newcontent = msg.content.split()[0]
-            if newcontent.__contains__(config.prefix + str(command)):
+        except:
+            newcontent = msg.content
+        if newcontent.__contains__(config.prefix + str(command)):
+            if str(msg.author.id) in config.blacklist:
                 em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
                 await msg.channel.send(embed = em, delete_after=5.0)
-    else:
-        await bot.process_commands(msg)
+                return
+            else:  
+                bot.commandsran.append(str(command))
+                break
+    await bot.process_commands(msg)
 
 @bot.event
 async def on_guild_join(guild):
