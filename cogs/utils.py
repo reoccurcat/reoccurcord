@@ -592,6 +592,42 @@ class Utils(commands.Cog):
                 self.bot.unload_extension(args)
                 em = discord.Embed(title = "Cog Unloaded", description = "`" + args + "` has been unloaded.", color = discord.Color.green())
                 await ctx.reply(embed=em, mention_author=False)
+            elif choice == "stats":
+                em = discord.Embed(title="Stats")
+                em.add_field(name="Total Executed Commands", value=f"{str(len(self.bot.commandsran))} commands")
+                newlist = self.bot.commandsran
+                test = []
+                dictionary = {}
+                def sortfunc(e):
+                    return e['amount']
+                for item in newlist:
+                    dictionary = {}
+                    counted = newlist.count(item)
+                    dictionary["command"] = item
+                    dictionary["amount"] = int(counted)
+                    if dictionary not in test:
+                        test.append(dictionary)
+                    del dictionary
+                test.sort(key=sortfunc, reverse=True) 
+                #print(test)
+                number = 0
+                commanduses = []
+                for item in test:
+                    if number != 4:
+                        try:
+                            commanduses.append("**Name:** `"+str(item["command"])+"`; **Amount**: `"+str(item["amount"])+"`")
+                            number = number+1
+                        except:
+                            break
+                em.add_field(name="Most Used Commands", value="\n".join(commanduses))
+                list1 = self.bot.errors
+                list1.reverse()
+                errorlist = []
+                for x in range(4):
+                    dictionary = list1[x]
+                    errorlist.append("**-** "+str(dictionary["command"])+": `"+str(dictionary["error"])+"`")
+                em.add_field(name="Recent Errors", value="\n".join(errorlist), inline=False)
+                await ctx.send(embed=em)
             else:
                 em = discord.Embed(title="Help", color=discord.Color.blue())
                 em.set_author(name="Admin (Bot Owner Only) Commands")
@@ -606,6 +642,7 @@ class Utils(commands.Cog):
                 em.add_field(name=f"`{config.prefix}admin updatecheck`", value="Checks for updates to the bot") 
                 em.add_field(name=f"`{config.prefix}admin shutdown`", value="Shuts down the bot")  
                 em.add_field(name=f"`{config.prefix}admin restart`", value="Restarts the bot")    
+                em.add_field(name=f"`{config.prefix}admin stats`", value="Shows bot stats")
                 await ctx.send(embed=em)
         else:
             em = discord.Embed(title = "This command is for the bot owner only.", color = discord.Color.red())
@@ -637,6 +674,19 @@ class Utils(commands.Cog):
                     number = number+1
                 except:
                     break
+        await ctx.send(embed=em)
+
+    @commands.command()
+    async def recenterrors(self, ctx, amount=3):
+        list1 = self.bot.errors
+        list1.reverse()
+        em = discord.Embed(title="Recent Errors")
+        for x in range(amount):
+            try:
+                dictionary = list1[x]
+                em.add_field(name=str(dictionary["command"]), value=str(dictionary["error"]))
+            except:
+                break
         await ctx.send(embed=em)
 
 def setup(bot):

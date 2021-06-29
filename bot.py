@@ -4,12 +4,14 @@
 # You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from sys import prefix
 import config
 import discord
 import aiohttp
 import globalconfig
 import time
 import asyncio
+import random
 from discord.ext import commands
 
 intents = discord.Intents.default()
@@ -22,6 +24,7 @@ bot = commands.Bot(command_prefix=config.prefix, description=description, intent
 statusloop = False
 
 bot.commandsran = []
+bot.errors = []
 
 #bot.remove_command('help')
 
@@ -188,17 +191,17 @@ for filename in os.listdir('./cogs'):
 
 @bot.event
 async def on_message(msg):
+    try:
+        newcontent = msg.content.split()[0]
+    except:
+        newcontent = msg.content
     for command in bot.commands:
-        try:
-            newcontent = msg.content.split()[0]
-        except:
-            newcontent = msg.content
         if newcontent.__contains__(config.prefix + str(command)):
             if str(msg.author.id) in config.blacklist:
                 em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
                 await msg.channel.send(embed = em, delete_after=5.0)
                 return
-            else:  
+            elif newcontent != f"{config.prefix}mostusedcmds":  
                 bot.commandsran.append(str(command))
                 break
     await bot.process_commands(msg)
@@ -232,22 +235,26 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         em = discord.Embed(title = "Error", description = "You do not have permission to do that.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed = em)
+        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     elif isinstance(error, commands.MissingRequiredArgument):
         em = discord.Embed(title = "Error", description = "Your command is missing an argument.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed = em, mention_author=False)
+        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     elif isinstance(error, commands.CommandNotFound):
-        em = discord.Embed(title = "Error", description = "Command not found", color = discord.Color.red())
-        em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed = em, mention_author=False)
+        return
     elif isinstance(error, commands.CommandOnCooldown):
         em = discord.Embed(title = "Cooldown Error", color = discord.Color.red())
         em.add_field(name = "Error Details", value = f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds.')
-        await ctx.reply(embed=em, mention_author=False)
+        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     else:
         em = discord.Embed(title = "An internal error occurred.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed = em, mention_author=False)
+        await ctx.reply(embed=em, mention_author=False, delete_after=5)
+    randnum = random.randint(1, 9999)
+    dictionary = {}
+    dictionary["command"] = str(ctx.message.content.split()[0])
+    dictionary["error"] = str(error)
+    bot.errors.append(dictionary)
+    del dictionary
 
 bot.run(config.bot_token)
