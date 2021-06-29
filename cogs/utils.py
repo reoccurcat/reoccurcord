@@ -594,7 +594,10 @@ class Utils(commands.Cog):
                 await ctx.reply(embed=em, mention_author=False)
             elif choice == "stats":
                 em = discord.Embed(title="Stats")
-                em.add_field(name="Total Executed Commands", value=f"{str(len(self.bot.commandsran))} commands")
+                try:
+                    em.add_field(name="Total Executed Commands", value=f"{str(len(self.bot.commandsran))} commands")
+                except Exception:
+                    em.add_field(name="Total Executed Commands", value="No commands have been executed yet.")
                 try:
                     newlist = self.bot.commandsran
                     test = []
@@ -620,18 +623,27 @@ class Utils(commands.Cog):
                                 number = number+1
                             except:
                                 break
-                    em.add_field(name="Most Used Commands", value="\n".join(commanduses))
-                except:
+                    if commanduses != []:
+                        em.add_field(name="Most Used Commands", value="\n".join(commanduses))
+                    else:
+                        em.add_field(name="Most Used Commands", value="No commands have been ran yet.")
+                except Exception:
                     em.add_field(name="Most Used Commands", value="No commands have been ran yet.")
                 try:
                     list1 = self.bot.errors
                     list1.reverse()
                     errorlist = []
                     for x in range(4):
-                        dictionary = list1[x]
-                        errorlist.append("**-** "+str(dictionary["command"])+": `"+str(dictionary["error"])+"`")
-                    em.add_field(name="Recent Errors", value="\n".join(errorlist), inline=False)
-                except:
+                        try:
+                            dictionary = list1[x]
+                            errorlist.append("**-** `"+str(dictionary["command"])+"`:\n```fix\n"+str(dictionary["error"])+"\n```")
+                        except:
+                            break
+                    if dictionary != {}:
+                        em.add_field(name="Recent Errors", value="\n".join(errorlist), inline=False)
+                    else:
+                        em.add_field(name="Recent Errors", value="There have not been any errors since the bot started.")
+                except Exception:
                     em.add_field(name="Recent Errors", value="There have not been any errors since the bot started.", inline=False)
                 await ctx.send(embed=em)
             else:

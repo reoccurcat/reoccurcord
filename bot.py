@@ -241,7 +241,9 @@ async def on_command_error(ctx, error):
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
         await ctx.reply(embed=em, mention_author=False, delete_after=5)
     elif isinstance(error, commands.CommandNotFound):
-        return
+        em = discord.Embed(title = "Error", description = f"The command you inputted was not found.\nTry running `{config.prefix}help` to see the available commands.", color = discord.Color.red())
+        em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
+        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     elif isinstance(error, commands.CommandOnCooldown):
         em = discord.Embed(title = "Cooldown Error", color = discord.Color.red())
         em.add_field(name = "Error Details", value = f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds.')
@@ -250,11 +252,11 @@ async def on_command_error(ctx, error):
         em = discord.Embed(title = "An internal error occurred.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
         await ctx.reply(embed=em, mention_author=False, delete_after=5)
-    randnum = random.randint(1, 9999)
-    dictionary = {}
-    dictionary["command"] = str(ctx.message.content.split()[0])
-    dictionary["error"] = str(error)
-    bot.errors.append(dictionary)
-    del dictionary
+        randnum = random.randint(1, 9999)
+        dictionary = {}
+        dictionary["command"] = str(ctx.message.content.split()[0]).replace(str(config.prefix), "")
+        dictionary["error"] = str(error)
+        bot.errors.append(dictionary)
+        del dictionary
 
 bot.run(config.bot_token)
