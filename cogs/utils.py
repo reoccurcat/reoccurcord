@@ -636,7 +636,7 @@ class Utils(commands.Cog):
                     for x in range(4):
                         try:
                             dictionary = list1[x]
-                            errorlist.append("**-** `"+str(dictionary["command"])+"`:\n```fix\n"+str(dictionary["error"])+"\n```")
+                            errorlist.append("**-** `"+str(dictionary["command"])+"` at `"+str(dictionary["time"])+"`:\n```fix\n"+str(dictionary["error"])+"\n```")
                         except:
                             break
                     if dictionary != {}:

@@ -11,6 +11,7 @@ import aiohttp
 import globalconfig
 import time
 import asyncio
+from datetime import datetime
 import random
 from discord.ext import commands
 
@@ -235,28 +236,24 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         em = discord.Embed(title = "Error", description = "You do not have permission to do that.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     elif isinstance(error, commands.MissingRequiredArgument):
         em = discord.Embed(title = "Error", description = "Your command is missing an argument.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     elif isinstance(error, commands.CommandNotFound):
         em = discord.Embed(title = "Error", description = f"The command you inputted was not found.\nTry running `{config.prefix}help` to see the available commands.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     elif isinstance(error, commands.CommandOnCooldown):
         em = discord.Embed(title = "Cooldown Error", color = discord.Color.red())
         em.add_field(name = "Error Details", value = f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds.')
-        await ctx.reply(embed=em, mention_author=False, delete_after=5)
     else:
         em = discord.Embed(title = "An internal error occurred.", color = discord.Color.red())
         em.add_field(name = "Detailed Error", value = "`" + str(error) + "`")
-        await ctx.reply(embed=em, mention_author=False, delete_after=5)
-        randnum = random.randint(1, 9999)
-        dictionary = {}
-        dictionary["command"] = str(ctx.message.content.split()[0]).replace(str(config.prefix), "")
-        dictionary["error"] = str(error)
-        bot.errors.append(dictionary)
-        del dictionary
+    dictionary = {}
+    dictionary["command"] = str(ctx.message.content.split()[0]).replace(str(config.prefix), "")
+    dictionary["error"] = str(error)
+    dictionary["time"] = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    bot.errors.append(dictionary)
+    del dictionary
+    await ctx.reply(embed=em, mention_author=False, delete_after=5)
 
 bot.run(config.bot_token)
