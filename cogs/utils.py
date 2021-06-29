@@ -595,38 +595,44 @@ class Utils(commands.Cog):
             elif choice == "stats":
                 em = discord.Embed(title="Stats")
                 em.add_field(name="Total Executed Commands", value=f"{str(len(self.bot.commandsran))} commands")
-                newlist = self.bot.commandsran
-                test = []
-                dictionary = {}
-                def sortfunc(e):
-                    return e['amount']
-                for item in newlist:
+                try:
+                    newlist = self.bot.commandsran
+                    test = []
                     dictionary = {}
-                    counted = newlist.count(item)
-                    dictionary["command"] = item
-                    dictionary["amount"] = int(counted)
-                    if dictionary not in test:
-                        test.append(dictionary)
-                    del dictionary
-                test.sort(key=sortfunc, reverse=True) 
-                #print(test)
-                number = 0
-                commanduses = []
-                for item in test:
-                    if number != 4:
-                        try:
-                            commanduses.append("**Name:** `"+str(item["command"])+"`; **Amount**: `"+str(item["amount"])+"`")
-                            number = number+1
-                        except:
-                            break
-                em.add_field(name="Most Used Commands", value="\n".join(commanduses))
-                list1 = self.bot.errors
-                list1.reverse()
-                errorlist = []
-                for x in range(4):
-                    dictionary = list1[x]
-                    errorlist.append("**-** "+str(dictionary["command"])+": `"+str(dictionary["error"])+"`")
-                em.add_field(name="Recent Errors", value="\n".join(errorlist), inline=False)
+                    def sortfunc(e):
+                        return e['amount']
+                    for item in newlist:
+                        dictionary = {}
+                        counted = newlist.count(item)
+                        dictionary["command"] = item
+                        dictionary["amount"] = int(counted)
+                        if dictionary not in test:
+                            test.append(dictionary)
+                        del dictionary
+                    test.sort(key=sortfunc, reverse=True) 
+                    #print(test)
+                    number = 0
+                    commanduses = []
+                    for item in test:
+                        if number != 4:
+                            try:
+                                commanduses.append("**Name:** `"+str(item["command"])+"`; **Amount**: `"+str(item["amount"])+"`")
+                                number = number+1
+                            except:
+                                break
+                    em.add_field(name="Most Used Commands", value="\n".join(commanduses))
+                except:
+                    em.add_field(name="Most Used Commands", value="No commands have been ran yet.")
+                try:
+                    list1 = self.bot.errors
+                    list1.reverse()
+                    errorlist = []
+                    for x in range(4):
+                        dictionary = list1[x]
+                        errorlist.append("**-** "+str(dictionary["command"])+": `"+str(dictionary["error"])+"`")
+                    em.add_field(name="Recent Errors", value="\n".join(errorlist), inline=False)
+                except:
+                    em.add_field(name="Recent Errors", value="There have not been any errors since the bot started.", inline=False)
                 await ctx.send(embed=em)
             else:
                 em = discord.Embed(title="Help", color=discord.Color.blue())
