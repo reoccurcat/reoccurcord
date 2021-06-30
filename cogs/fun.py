@@ -23,22 +23,12 @@ import aiofiles
 from discord.ext import commands
 from cryptography.fernet import Fernet
 from bs4 import BeautifulSoup
-from discord.ext import commands
 from nudenet import NudeClassifier
 from nudenet import NudeDetector
 
 classifier = NudeClassifier()
 detector = NudeDetector()
 sys.path.insert(0, "data/roleplay")
-
-##############################################
-
-"""
-requests and urllib are blocking. Do not use these libraries within your asynchronous code. 
-(http://discordpy.readthedocs.io/en/latest/faq.html#what-does-blocking-mean)
-
-discord.py uses aiohttp, so it should already be installed.
-"""
 
 async def getdata(url):  # switch from requests module to aiohttp (see above for reason)
     async with aiohttp.ClientSession() as session:
@@ -251,7 +241,7 @@ class Fun(commands.Cog):
                         f.close()
                         embed.set_footer(text="Images of your query were cached.")
                     except Exception as e:
-                        #print(e)
+                        print(e)
                         pass                        
         printimage = random.choice(images)
         if not isinstance(ctx.channel, discord.channel.DMChannel):
@@ -378,7 +368,7 @@ class Fun(commands.Cog):
                         continue
                     try:
                         item = item.split("?")[0]
-                    except:
+                    except AttributeError:
                         pass
                     allresults.append(item)
                 except Exception as e:
@@ -776,7 +766,7 @@ class Fun(commands.Cog):
         try:
             em.add_field(name="Source Size", value=f"`{str(data['src_size'])}` bytes")
             em.add_field(name="New Size", value=f"`{str(data['dest_size'])}` bytes")
-        except:
+        except AttributeError:
             pass
         em.set_image(url=str(data["dest"]))
         await ctx.reply(embed=em, mention_author=False)
