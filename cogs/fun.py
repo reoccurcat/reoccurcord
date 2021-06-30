@@ -111,7 +111,9 @@ class Fun(commands.Cog):
                continue # if a string is passed, pass it
         equation = " + ".join([num[1] for num in new_list]) #iterate over our new_list to get the string part of numbers and join them
         total = sum([num[0] for num in new_list]) # iterate over the new_list and add all the appended float numbers together
-        em = discord.Embed(title = f"**__Input:__**\n```py\n{equation}\n```\n**__Output:__**\n```py\n{total}\n```", color = discord.Color.blue()) # send both the input and output
+        em = discord.Embed(title = "Adding", color = discord.Color.blue()) # send both the input and output
+        em.add_field(name="**__Input__**", value=f"```py\n{str(equation)}\n```")
+        em.add_field(name="**__Output__**", value=f"```py3\n{str(total)}\n```")
         await ctx.reply(embed=em, mention_author=False)
 
     
