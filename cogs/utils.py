@@ -565,6 +565,7 @@ class Utils(commands.Cog):
                 embed = discord.Embed(title = f"Connected on {str(len(servers))} servers:", color = discord.Color.blue())
                 embed.add_field(name = "Servers", value = '\n'.join(guild.name for guild in self.bot.guilds))
                 embed.add_field(name = "Server IDs", value = '\n'.join(str(guild.id) for guild in self.bot.guilds))
+                embed.add_field(name = "Member Count", value = '\n'.join(str(guild.member_count) for guild in self.bot.guilds))
                 await ctx.reply(embed=embed, mention_author=False)
             elif choice == "shutdown":
                 first_embed = discord.Embed(title = "Shutting down bot...", color = discord.Color.blue())
