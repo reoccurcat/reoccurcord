@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/github/license/reoccurcat/reoccurcord)](https://github.com/reoccurcat/reoccurcord/blob/main/LICENSE)
 [![Commits](https://img.shields.io/github/commit-activity/m/reoccurcat/freediscord)](https://github.com/reoccurcat/reoccurcord/commits/main)
 ![Maintained](https://img.shields.io/maintenance/yes/2021)
+[![CodeFactor](https://www.codefactor.io/repository/github/reoccurcat/reoccurcord/badge)](https://www.codefactor.io/repository/github/reoccurcat/reoccurcord)
 
 # reoccurcord
 ## Welcome to the official GitHub page of the reoccurcord bot!
