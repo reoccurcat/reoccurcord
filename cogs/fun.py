@@ -241,8 +241,7 @@ class Fun(commands.Cog):
                         f.close()
                         embed.set_footer(text="Images of your query were cached.")
                     except Exception as e:
-                        print(e)
-                        pass                        
+                        print(e)                        
         printimage = random.choice(images)
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             if ctx.channel.nsfw is False:
@@ -373,7 +372,6 @@ class Fun(commands.Cog):
                     allresults.append(item)
                 except Exception as e:
                     print(e)
-                    pass
             for item in soup.find_all("aria-labelledby"):
                 print(item)
             if '"' in query:

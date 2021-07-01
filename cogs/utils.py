@@ -18,11 +18,9 @@ import importlib
 import subprocess
 import globalconfig
 import shutil
-import sys
 from discord.ext import commands
 from shutil import copyfile
 from git import Repo
-from discord.ext import commands
 
 sys.path.append(os.path.realpath('.'))
 start_time = time.time()
@@ -449,9 +447,9 @@ class Utils(commands.Cog):
                 importlib.reload(config)
                 os.remove(dir_path + "/updateconfig.py")
             elif choice == "blacklist":
-                if bool(ctx.guild) == True:
+                if bool(ctx.guild) is True:
                     await ctx.message.delete()
-                if str(arg2).isdigit() == True:
+                if str(arg2).isdigit() is True:
                     if str(arg1) == "remove":
                         oldlist = config.blacklist
                         oldlist.remove(str(arg2))
@@ -621,7 +619,7 @@ class Utils(commands.Cog):
                             try:
                                 commanduses.append("**Name:** `"+str(item["command"])+"`; **Amount**: `"+str(item["amount"])+"`")
                                 number = number+1
-                            except:
+                            except Exception:
                                 break
                     if commanduses != []:
                         em.add_field(name="Most Used Commands", value="\n".join(commanduses))
@@ -637,7 +635,7 @@ class Utils(commands.Cog):
                         try:
                             dictionary = list1[x]
                             errorlist.append("**-** `"+str(dictionary["command"])+"` at `"+str(dictionary["time"])+"`:\n```fix\n"+str(dictionary["error"])+"\n```")
-                        except:
+                        except Exception:
                             break
                     if dictionary != {}:
                         em.add_field(name="Recent Errors", value="\n".join(errorlist), inline=False)
@@ -703,7 +701,7 @@ class Utils(commands.Cog):
             try:
                 dictionary = list1[x]
                 em.add_field(name=str(dictionary["command"]), value=str(dictionary["error"]))
-            except:
+            except Exception:
                 break
         await ctx.send(embed=em)
 
