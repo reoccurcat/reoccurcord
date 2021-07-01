@@ -194,7 +194,7 @@ for filename in os.listdir('./cogs'):
 async def on_message(msg):
     try:
         newcontent = msg.content.split()[0]
-    except:
+    except Exception:
         newcontent = msg.content
     for command in bot.commands:
         if newcontent.__contains__(config.prefix + str(command)):
