@@ -142,8 +142,11 @@ class MyNewHelp(commands.MinimalHelpCommand):
                         await channel.send("Can't delete reactions.", delete_after=5.0)
                     break
             except asyncio.TimeoutError:
-                for emoji in emojilist:
-                    await msg.clear_reaction(emoji)
+                try:
+                    for emoji in emojilist:
+                        await msg.clear_reaction(emoji)
+                except:
+                    await channel.send("Can't delete reactions.", delete_after=5.0)
                 break
                 # ending the loop if user doesn't react after x seconds
             except IndexError:
