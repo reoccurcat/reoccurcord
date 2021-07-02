@@ -666,45 +666,72 @@ class Utils(commands.Cog):
             await ctx.reply(embed=em, mention_author=False)
 
     @commands.command()
-    async def mostusedcmds(self, ctx, amount=3):
-        em = discord.Embed(title="Most Used Commands", color=discord.Color.blue())
-        newlist = self.bot.commandsran
-        test = []
-        dictionary = {}
-        def sortfunc(e):
-            return e['amount']
-        for item in newlist:
-            dictionary = {}
-            counted = newlist.count(item)
-            dictionary["command"] = item
-            dictionary["amount"] = int(counted)
-            if dictionary not in test:
-                test.append(dictionary)
-            del dictionary
-        test.sort(key=sortfunc, reverse=True) 
-        #print(test)
-        number = 0
-        for item in test:
-            if number != amount:
-                try:
-                    em.add_field(name=str(item["command"]), value="Amount of times ran: "+str(item["amount"]))
-                    number = number+1
-                except Exception:
-                    break
+    @commands.cooldown(1,30,commands.BucketType.user)
+    async def feedback(self, ctx, anonymous, *, feedback=None):
+        if anonymous == "anonymous":
+            submitter = "Requested Anonymous"
+        elif anonymous != "anonymous" and bool(feedback):
+            submitter = f"{ctx.author.name}#{ctx.author.discriminator} (<@!{ctx.author.id}>)"
+            feedback = f"{anonymous} {feedback}"
+        elif anonymous != "anonymous" and not bool(feedback):
+            submitter = f"{ctx.author.name}#{ctx.author.discriminator} (<@!{ctx.author.id}>)"
+            feedback = anonymous
+        em = discord.Embed(title="Feedback Sent!", description="Your feedback was sent to the bot owner.", color=discord.Color.green())
         await ctx.send(embed=em)
+        em = discord.Embed(title="Feedback Recieved", color=discord.Color.blue())
+        em.add_field(name="Submitter", value=str(submitter))
+        em.add_field(name="Feedback", value=str(feedback), inline=False)
+        user = self.bot.get_user(int(config.ownerID))
+        await user.send(embed=em)
 
     @commands.command()
-    async def recenterrors(self, ctx, amount=3):
-        list1 = self.bot.errors
-        list1.reverse()
-        em = discord.Embed(title="Recent Errors")
-        for x in range(amount):
-            try:
-                dictionary = list1[x]
-                em.add_field(name=str(dictionary["command"]), value=str(dictionary["error"]))
-            except Exception:
-                break
-        await ctx.send(embed=em)
+    @commands.has_permissions(administrator=True)
+    @commands.cooldown(1,10,commands.BucketType.user)
+    async def config(self, ctx, arg1=None, arg2=None, arg3=None):
+        validsettings = ["detectghostpings", "prefix"]
+        settingtype = ["bool", "string"]
+        if not os.path.exists("./data/guild/"):
+            os.mkdir("./data/guild/")
+        if not os.path.exists(f"./data/guild/{str(ctx.guild.id)}.json"):
+            with open(f"./data/guild/{str(ctx.guild.id)}.json", "w") as f:
+                dictionary = {}
+                dictionary["detectghostpings"] = False
+                dictionary["prefix"] = "default"
+                json.dump(dictionary, f)
+        if arg1 == "list":
+            settingslist = []
+            em = discord.Embed(title="This Server's Config", color=discord.Color.blue())
+            with open(f"./data/guild/{str(ctx.guild.id)}.json", "r") as f:
+                guildconfig = json.load(f)
+            for item, itemvalue in guildconfig.items():
+                settingslist.append(f"{item}: {itemvalue}")
+            em.add_field(name="Current Settings", value='```py\n'+'\n'.join(settingslist)+"\n```")
+            await ctx.send(embed=em)
+        elif arg1 == "set":
+            for item in validsettings:
+                if arg2 == str(item):
+                    validsetting = True
+                    break
+                else:
+                    validsetting = False
+            if validsetting is True:
+                with open(f"./data/guild/{str(ctx.guild.id)}.json", "r") as f:
+                    guildconfig = json.load(f)
+                if type(guildconfig[str(arg2)]).__name__ == "bool":
+                    if arg3 == "True":
+                        pass
+                    elif arg3 == "False":
+                        pass
+                    else:
+                        await ctx.send("That is not a valid value for the setting you want to change.")
+                        return
+                guildconfig[str(arg2)] = arg3
+                with open(f"./data/guild/{str(ctx.guild.id)}.json", "w") as f:
+                    json.dump(guildconfig, f)
+                await ctx.send(f"{arg2} changed.")
+            elif validsetting is False:
+                await ctx.send("That is not a valid setting.")
+
 
 def setup(bot):
     bot.add_cog(Utils(bot))

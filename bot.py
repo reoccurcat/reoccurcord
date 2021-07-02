@@ -11,8 +11,9 @@ import aiohttp
 import globalconfig
 import time
 import asyncio
-from datetime import datetime
 import random
+import json
+from datetime import datetime
 from discord.ext import commands
 
 intents = discord.Intents.default()
@@ -20,7 +21,24 @@ intents.members = True
 
 description = ""
 
-bot = commands.Bot(command_prefix=config.prefix, description=description, intents=intents)
+guildconfig = {}
+
+def prefix(bot, msg):
+    if not os.path.exists(f"./data/guild/{str(msg.guild.id)}.json"):
+        with open(f"./data/guild/{str(msg.guild.id)}.json", "w") as f:
+            dictionary = {}
+            dictionary["detectghostpings"] = False
+            dictionary["prefix"] = "default"
+            json.dump(dictionary, f)
+    with open(f"./data/guild/{str(msg.guild.id)}.json", "r") as f:
+        guildconfig = json.load(f)
+    id = msg.guild.id
+    if guildconfig["prefix"] == "default":
+        return config.prefix
+    else:
+        return guildconfig["prefix"]
+
+bot = commands.Bot(command_prefix=prefix, description=description, intents=intents)
 
 statusloop = False
 
@@ -192,20 +210,47 @@ for filename in os.listdir('./cogs'):
 
 @bot.event
 async def on_message(msg):
+    if msg.author.bot:
+        return
     try:
-        newcontent = msg.content.split()[0]
+        newcontent = msg.content.split()[0].split(config.prefix)[1]
     except Exception:
-        newcontent = msg.content
+        try:
+            newcontent = msg.content.split(config.prefix)[1]
+        except Exception:
+            newcontent = msg.content
+    if not os.path.exists(f"./data/guild/{str(msg.guild.id)}.json"):
+        with open(f"./data/guild/{str(msg.guild.id)}.json", "w") as f:
+            dictionary = {}
+            dictionary["detectghostpings"] = False
+            dictionary["prefix"] = "default"
+            json.dump(dictionary, f)
+    with open(f"./data/guild/{str(msg.guild.id)}.json", "r") as f:
+        guildconfig = json.load(f)
     for command in bot.commands:
-        if newcontent.__contains__(config.prefix + str(command)):
+        if newcontent == command.name:
             if str(msg.author.id) in config.blacklist:
                 em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
                 await msg.channel.send(embed = em, delete_after=5.0)
                 return
-            elif newcontent != f"{config.prefix}mostusedcmds":  
-                bot.commandsran.append(str(command))
-                break
-    await bot.process_commands(msg)
+            notacommand = False
+            break
+        else:
+            notacommand = True
+    if notacommand is True and msg.author.id != bot.user.id and bool(msg.mentions) is True and guildconfig["detectghostpings"] == "True":
+        def check(m):
+            return m.author == msg.author
+        try:
+            await bot.wait_for("message_delete", timeout=random.randint(5, 15), check=check)
+            em = discord.Embed(title="Ghost Ping Detected!", color=discord.Color.red(), timestamp=datetime.utcnow())
+            em.add_field(name="Message", value=msg.content, inline=False)
+            em.add_field(name="Sender", value=f"`{str(msg.author.name)}#{str(msg.author.discriminator)}`\n(<@!{msg.author.id}>)", inline=False)
+            em.set_footer(text="👻")
+            await msg.channel.send(embed=em)
+        except asyncio.TimeoutError:
+            pass
+    else:
+        await bot.process_commands(msg)
 
 @bot.event
 async def on_guild_join(guild):
@@ -230,6 +275,11 @@ async def on_guild_join(guild):
     channel = guild.system_channel
     if channel.permissions_for(guild.me).send_messages:
         await channel.send(embed=em)
+    with open(f"./data/guild/{str(guild.id)}.json", "w") as f:
+        dictionary = {}
+        dictionary["detectghostpings"] = False
+        dictionary["prefix"] = "default"
+        json.dump(dictionary, f)
 
 @bot.event
 async def on_command_error(ctx, error):
