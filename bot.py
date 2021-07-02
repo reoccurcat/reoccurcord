@@ -88,40 +88,58 @@ class MyNewHelp(commands.MinimalHelpCommand):
                     page = 1
                     em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
+                    try:
+                        await msg.remove_reaction(reaction, user) 
+                    except Exception:
+                        em.set_footer(text="The bot doesn't have permission to remove reactions.\nYou will have to remove your reactions manually.")
                     await msg.edit(embed=em)
-                    await msg.remove_reaction(reaction, user)
                     oldpage = 1
                 elif str(reaction.emoji) == "2️⃣":
                     page = 2
                     em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
+                    try:
+                        await msg.remove_reaction(reaction, user) 
+                    except Exception:
+                        em.set_footer(text="The bot doesn't have permission to remove reactions.\nYou will have to remove your reactions manually.")
                     await msg.edit(embed=em)
-                    await msg.remove_reaction(reaction, user) 
                     oldpage = 2
                 elif str(reaction.emoji) == "3️⃣":
                     page = 3
                     em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
+                    try:
+                        await msg.remove_reaction(reaction, user) 
+                    except Exception:
+                        em.set_footer(text="The bot doesn't have permission to remove reactions.\nYou will have to remove your reactions manually.")
                     await msg.edit(embed=em)
-                    await msg.remove_reaction(reaction, user)
                     oldpage = 3
                 elif str(reaction.emoji) == "4️⃣":
                     page = 4
                     em = discord.Embed(title=f"Command List Page {page}\n{cognames[page-1]}", description=f"{commandlist[page-1]}", color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
+                    try:
+                        await msg.remove_reaction(reaction, user) 
+                    except Exception:
+                        em.set_footer(text="The bot doesn't have permission to remove reactions.\nYou will have to remove your reactions manually.")
                     await msg.edit(embed=em)
-                    await msg.remove_reaction(reaction, user)
                     oldpage = 4
                 elif str(reaction.emoji) == "🏠":
                     page = 5
                     em = discord.Embed(title="Command List", description=f"This is the command list of {bot.user.name}'s commands. Click the numbers to go to different pages, or click the house to come back here.\n"+'\n'.join(cognames), color=discord.Color.blue())
                     em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
+                    try:
+                        await msg.remove_reaction(reaction, user) 
+                    except Exception:
+                        em.set_footer(text="The bot doesn't have permission to remove reactions.\nYou will have to remove your reactions manually.")
                     await msg.edit(embed=em)
-                    await msg.remove_reaction(reaction, user)
                     oldpage = 5
                 elif str(reaction.emoji) == "⏹️":
-                    for emoji in emojilist:
-                        await msg.clear_reaction(emoji)
+                    try:
+                        for emoji in emojilist:
+                            await msg.clear_reaction(emoji)
+                    except:
+                        await channel.send("Can't delete reactions.", delete_after=5.0)
                     break
             except asyncio.TimeoutError:
                 for emoji in emojilist:
@@ -129,9 +147,12 @@ class MyNewHelp(commands.MinimalHelpCommand):
                 break
                 # ending the loop if user doesn't react after x seconds
             except IndexError:
-                await msg.remove_reaction(reaction, user)
                 em = discord.Embed(title="Error", description="Oops! You may not have permission to see this command group!", color=discord.Color.red())
                 em.set_author(name=f"{bot.user.name}", icon_url="https://rc.reoccur.tech/assets/icon.gif")
+                try:
+                    await msg.remove_reaction(reaction, user) 
+                except Exception:
+                    em.set_footer(text="The bot doesn't have permission to remove reactions.\nYou will have to remove your reactions manually.")
                 await msg.edit(embed=em)
                 await asyncio.sleep(5) 
                 if oldpage == 0:
@@ -233,6 +254,7 @@ async def on_message(msg):
                 em = discord.Embed(title = "User Blacklisted", description = f"You are blacklisted from using the bot. Please contact <@!{config.ownerID}> for more information.")
                 await msg.channel.send(embed = em, delete_after=5.0)
                 return
+            bot.commandsran.append(newcontent)
             notacommand = False
             break
         else:
