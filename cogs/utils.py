@@ -735,7 +735,7 @@ class Utils(commands.Cog):
     @commands.command()
     @commands.cooldown(1,30,commands.BucketType.user)
     async def invite(self, ctx):
-        em = discord.Embed(name="Invite me to your server:", description="https://rc.reoccur.tech/")
+        em = discord.Embed(title="Invite me to your server:", description="https://rc.reoccur.tech/", color=discord.Color.purple())
         await ctx.reply(embed=em, mention_author=False)
 
 def setup(bot):
