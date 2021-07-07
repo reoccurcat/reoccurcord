@@ -732,6 +732,11 @@ class Utils(commands.Cog):
             elif validsetting is False:
                 await ctx.send("That is not a valid setting.")
 
+    @commands.command()
+    @commands.cooldown(1,30,commands.BucketType.user)
+    async def invite(self, ctx, anonymous, *, feedback=None):
+        em = discord.Embed(name="Invite me to your server:", description="https://rc.reoccur.tech/")
+        await ctx.reply(embed=em, mention_author=False)
 
 def setup(bot):
     bot.add_cog(Utils(bot))
