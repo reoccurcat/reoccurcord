@@ -8,6 +8,41 @@ from discord.ext import commands
 import config
 import datetime
 import time
+<<<<<<< Updated upstream
+=======
+import os
+import sys
+import asyncio
+try:
+    import psutil
+except:
+    os.system("pip3 install psutil")
+    import psutil
+
+try:
+    import requests
+except:
+    os.system("pip3 install requests")
+    import requests
+
+import aiohttp
+import json
+import importlib
+import subprocess
+import globalconfig
+
+try:
+    import shutil
+except:
+    os.system("pip3 install shutil")
+    import shutil
+
+from discord.ext import commands
+from shutil import copyfile
+from git import Repo
+
+sys.path.append(os.path.realpath('.'))
+>>>>>>> Stashed changes
 start_time = time.time()
 class Utils(commands.Cog):
     def __init__(self, bot):

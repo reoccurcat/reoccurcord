@@ -5,11 +5,30 @@
 
 import os
 import config
-import discord
+
+try:
+    import discord
+except:
+    os.system("pip3 install discord")
+    import discord
+
 import aiohttp
 import datetime
 import requests
 import globalconfig
+<<<<<<< Updated upstream
+=======
+import time
+
+try:
+    import asyncio
+except:
+    os.system("pip3 install asyncio")
+    
+import random
+import json
+from datetime import datetime
+>>>>>>> Stashed changes
 from discord.ext import commands
 
 intents = discord.Intents.default()

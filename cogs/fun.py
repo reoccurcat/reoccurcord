@@ -6,12 +6,17 @@
 
 ###### SORTED IMPORTS FOR CLEANER LOOK ######
 
+<<<<<<< Updated upstream
 import bot
 import psutil
+=======
+import os
+>>>>>>> Stashed changes
 import config
 import random
 import aiohttp
 import discord  # removed "from discord import embeds", doesn't do anything
+<<<<<<< Updated upstream
 import requests
 import time
 import asyncio
@@ -24,6 +29,50 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 
 ##############################################
+=======
+
+try:
+    import requests
+except:
+    os.system("pip3 install requests")
+    import requests
+
+import asyncio
+import importlib
+import sys
+import shutil
+import json
+
+try:
+    import cryptography
+except:
+    os.system("pip3 install cryptography")
+    import cryptography
+
+import binascii
+
+try:
+    import aiofiles
+except:
+    os.system("pip3 install aiofiles")
+    import aiofiles
+
+from discord.ext import commands
+from cryptography.fernet import Fernet
+
+try:
+    from bs4 import BeautifulSoup
+except:
+    os.system("pip3 install bs4")
+
+try:
+    from nudenet import NudeClassifier
+    from nudenet import NudeDetector
+except:
+    os.system("pip3 install nudenet")
+    from nudenet import NudeClassifier
+    from nudenet import NudeDetector
+>>>>>>> Stashed changes
 
 """
 requests and urllib are blocking. Do not use these libraries within your asynchronous code. 

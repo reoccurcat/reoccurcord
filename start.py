@@ -9,8 +9,22 @@ import sys
 import subprocess
 import config
 import globalconfig
+<<<<<<< Updated upstream
 import shutil
 from git import Repo
+=======
+try:
+    import shutil
+except:
+    os.system("pip3 install shutil")
+    import shutil
+#import ctypes
+try:
+    from git import Repo
+except:
+    os.system("pip3 install git")
+    from git import Repo
+>>>>>>> Stashed changes
 from shutil import copyfile
 
 commands = ["--help", "--updatebot", "--start", "--credits"]
