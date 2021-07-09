@@ -212,7 +212,7 @@ class Fun(commands.Cog):
             em.set_author(name=f"{ctx.author.name}#{ctx.author.discriminator}", icon_url=ctx.author.avatar_url)
             await ctx.reply(embed=em)
             images = []
-            htmldata = await getdata(f'https://searx.bar/search?q={query}&categories=images')
+            htmldata = await getdata(f'https://searx.prvcy.eu/search?q={query}&categories=images')
             #print(f"https://www.bing.com/images/search?q={str(newquery)}")
             soup = BeautifulSoup(htmldata, 'html.parser')
             for item in soup.find_all('img'):
@@ -348,7 +348,7 @@ class Fun(commands.Cog):
             importedquery = importlib.import_module(f"{str(query)}_web")
             allresults = importedquery.cache
         else:
-            htmldata = await getdata(f'https://searx.bar/search?q={query}')
+            htmldata = await getdata(f'https://searx.prvcy.eu/search?q={query}')
             #print(f"https://www.bing.com/images/search?q={str(newquery)}")
             soup = BeautifulSoup(htmldata, 'html.parser')
             allresults = []
