@@ -867,9 +867,9 @@ class Utils(commands.Cog):
             await ctx.send("Feedback sent!")
         else:
             em = discord.Embed(title="DM Feedback Dashboard", color=discord.Color.purple())
-            em.add_field(name="`[prefix]optin` (type)", value="Opts into the DM feature feedback type you provide.\nValid inputs for `(type)` are **userfeature** and **ownerfeature**.")
-            em.add_field(name="`[prefix]optout` (type)", value="Opts out of the DM feature feedback type you provide.\nValid inputs for `(type)` are **userfeature** and **ownerfeature**.")
-            em.add_field(name="`[prefix]feedback` (type) (feedback)", value="Sends feedback for the DM feature feedback type you provide.\nValid inputs for `(type)` are **userfeature** and **ownerfeature**.\nReplace `(feedback)` with your feedback.")
+            em.add_field(name="`[prefix]dmfeed optin` (type)", value="Opts into the DM feature feedback type you provide.\nValid inputs for `(type)` are **userfeature** and **ownerfeature**.")
+            em.add_field(name="`[prefix]dmfeed optout` (type)", value="Opts out of the DM feature feedback type you provide.\nValid inputs for `(type)` are **userfeature** and **ownerfeature**.")
+            em.add_field(name="`[prefix]dmfeed feedback` (type) (feedback)", value="Sends feedback for the DM feature feedback type you provide.\nValid inputs for `(type)` are **userfeature** and **ownerfeature**.\nReplace `(feedback)` with your feedback.")
             await ctx.send(embed=em)
 
 
