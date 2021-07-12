@@ -24,6 +24,8 @@ description = ""
 guildconfig = {}
 
 def prefix(bot, msg):
+    if isinstance(msg.channel, discord.channel.DMChannel):
+        return config.prefix
     if not os.path.exists(f"./data/guild/{str(msg.guild.id)}.json"):
         with open(f"./data/guild/{str(msg.guild.id)}.json", "w") as f:
             dictionary = {}
@@ -243,6 +245,9 @@ async def on_message(msg):
             newcontent = msg.content.split(config.prefix)[1]
         except Exception:
             newcontent = msg.content
+    if isinstance(msg.channel, discord.channel.DMChannel):
+        await bot.process_commands(msg)
+        return
     if not os.path.exists(f"./data/guild/{str(msg.guild.id)}.json"):
         with open(f"./data/guild/{str(msg.guild.id)}.json", "w") as f:
             dictionary = {}
