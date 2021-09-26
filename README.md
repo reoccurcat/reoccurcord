@@ -7,6 +7,7 @@
 ![Maintained](https://img.shields.io/maintenance/yes/2021)
 [![CodeFactor](https://www.codefactor.io/repository/github/reoccurcat/reoccurcord/badge)](https://www.codefactor.io/repository/github/reoccurcat/reoccurcord)
 
+
 # reoccurcord
 ## Welcome to the official GitHub page of the reoccurcord bot!
 reoccurcord is a Discord bot made formerly by the reoccurdevs team but taken over by the last dev that worked on it that you can edit and self host. If you want to fork it and make a new bot, that's fine, but please give us credit. :)
